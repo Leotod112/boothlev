@@ -320,3 +320,77 @@ export const templates = [
     ]
   }
 ];
+
+// --- TAMBAHAN CUSTOM PHOTOSTRIP (Terinspirasi tren studio) ---
+templates.push(
+  {
+    id: "strip-4-film",
+    category: "PHOTOSTRIP",
+    name: "Film Negative",
+    description: "4 slots with film border",
+    width: 600, height: 2100, slots: 4,
+    frameColor: "#000000", textColor: "#FFFFFF", slotShape: "square",
+    layout: [
+      { x: 75, y: 100, w: 450, h: 350 },
+      { x: 75, y: 550, w: 450, h: 350 },
+      { x: 75, y: 1000, w: 450, h: 350 },
+      { x: 75, y: 1450, w: 450, h: 350 }
+    ],
+    stickers: [
+      { emoji: "🎞️", x: 10, y: 10, size: 100 },
+      { emoji: "🎞️", x: 490, y: 10, size: 100 },
+      { emoji: "🎥", x: 220, y: 1850, size: 150 }
+    ]
+  },
+  {
+    id: "strip-2-wide",
+    category: "PHOTOSTRIP",
+    name: "Wide 2 Strip",
+    description: "2 landscape photos",
+    width: 600, height: 1200, slots: 2,
+    frameColor: "#FFFFFF", textColor: "#111111", slotShape: "square",
+    layout: [
+      { x: 50, y: 50, w: 500, h: 450 },
+      { x: 50, y: 550, w: 500, h: 450 }
+    ],
+    stickers: [
+      { emoji: "✨", x: 200, y: 1050, size: 120 },
+      { emoji: "🤍", x: 450, y: 1020, size: 140 }
+    ]
+  },
+  {
+    id: "grid-3x3",
+    category: "4X6 / 4R",
+    name: "Mini Grid 9",
+    description: "3x3 square photos",
+    width: 1200, height: 1200, slots: 9,
+    frameColor: "#111111", textColor: "#FFFFFF", slotShape: "square",
+    layout: [
+      { x: 50, y: 50, w: 340, h: 340 }, { x: 430, y: 50, w: 340, h: 340 }, { x: 810, y: 50, w: 340, h: 340 },
+      { x: 50, y: 430, w: 340, h: 340 }, { x: 430, y: 430, w: 340, h: 340 }, { x: 810, y: 430, w: 340, h: 340 },
+      { x: 50, y: 810, w: 340, h: 340 }, { x: 430, y: 810, w: 340, h: 340 }, { x: 810, y: 810, w: 340, h: 340 }
+    ],
+    stickers: [
+      { emoji: "📸", x: -40, y: 1050, size: 200 },
+      { emoji: "⚡", x: 1050, y: -20, size: 180 }
+    ]
+  },
+  {
+    id: "polaroid-collage",
+    category: "POLAROID",
+    name: "Collage 3",
+    description: "3 offset photos",
+    width: 1000, height: 1200, slots: 3,
+    frameColor: "#F4F4F4", textColor: "#111111", slotShape: "square",
+    layout: [
+      { x: 100, y: 50, w: 450, h: 450 },
+      { x: 450, y: 250, w: 450, h: 450 },
+      { x: 150, y: 650, w: 450, h: 450 }
+    ],
+    stickers: [
+      { emoji: "📌", x: 480, y: 20, size: 120 },
+      { emoji: "📎", x: 850, y: 220, size: 150 },
+      { emoji: "🔖", x: 100, y: 620, size: 140 }
+    ]
+  }
+);
