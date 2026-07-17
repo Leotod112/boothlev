@@ -9,12 +9,12 @@ export default function TermsOfService() {
           
           <h2 className="font-archivo text-2xl uppercase mt-8">1. Penerimaan Syarat</h2>
           <p>
-            Dengan mengakses dan menggunakan layanan Boothlev, Anda setuju untuk terikat oleh Syarat dan Ketentuan (TOS) ini. Jika Anda tidak setuju dengan bagian mana pun dari syarat ini, Anda tidak diperkenankan menggunakan layanan kami.
+            Dengan mengakses dan menggunakan layanan Syzhaa, Anda setuju untuk terikat oleh Syarat dan Ketentuan (TOS) ini. Jika Anda tidak setuju dengan bagian mana pun dari syarat ini, Anda tidak diperkenankan menggunakan layanan kami.
           </p>
 
           <h2 className="font-archivo text-2xl uppercase mt-8">2. Penggunaan Layanan</h2>
           <p>
-            Boothlev menyediakan layanan photobooth virtual dan fitur penghapusan latar belakang menggunakan AI. Anda setuju untuk menggunakan layanan ini hanya untuk tujuan yang sah dan tidak melanggar hak cipta, merek dagang, atau hak kekayaan intelektual pihak ketiga.
+            Syzhaa menyediakan layanan photobooth virtual dan fitur penghapusan latar belakang menggunakan AI. Anda setuju untuk menggunakan layanan ini hanya untuk tujuan yang sah dan tidak melanggar hak cipta, merek dagang, atau hak kekayaan intelektual pihak ketiga.
           </p>
 
           <h2 className="font-archivo text-2xl uppercase mt-8">3. AI Background Removal</h2>
@@ -24,7 +24,7 @@ export default function TermsOfService() {
 
           <h2 className="font-archivo text-2xl uppercase mt-8">4. Batasan Tanggung Jawab</h2>
           <p>
-            Layanan Boothlev disediakan "sebagaimana adanya". PT Lembur Demi Waifu tidak memberikan jaminan bahwa layanan akan selalu bebas dari gangguan atau bebas dari kesalahan teknis.
+            Layanan Syzhaa disediakan "sebagaimana adanya". PT Lembur Demi Waifu tidak memberikan jaminan bahwa layanan akan selalu bebas dari gangguan atau bebas dari kesalahan teknis.
           </p>
 
           <h2 className="font-archivo text-2xl uppercase mt-8">5. Perubahan Syarat</h2>

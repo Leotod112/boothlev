@@ -95,7 +95,7 @@ export default function TemplatesPage() {
                        className="absolute bottom-[2%] w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
                        style={{ color: t.textColor }}
                      >
-                       <span className="font-archivo text-[6px] uppercase font-bold leading-none">BOOTHLEV</span>
+                       <span className="font-archivo text-[6px] uppercase font-bold leading-none">SYZHAA</span>
                        <span className="text-[3.5px] font-bold mt-0.5">booth.ktik.me</span>
                      </div>
                   </div>

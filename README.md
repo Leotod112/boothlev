@@ -1,6 +1,6 @@
-# Boothlev 📸✨
+# Syzhaa 📸✨
 
-Boothlev is a privacy-first web application that brings the authentic photobooth experience directly to your browser. The core editor runs fully client-side, and all AI features run on a self-hosted standalone backend. No app installations, no external APIs, and no hidden data collection. What happens on your device, stays on your device!
+Syzhaa is a privacy-first web application that brings the authentic photobooth experience directly to your browser. The core editor runs fully client-side, and all AI features run on a self-hosted standalone backend. No app installations, no external APIs, and no hidden data collection. What happens on your device, stays on your device!
 
 Built with **Next.js**, **Zustand**, and **TailwindCSS**.
 
@@ -31,7 +31,7 @@ Built with **Next.js**, **Zustand**, and **TailwindCSS**.
 - **Rendering:** `html-to-image`
 - **Icons:** `lucide-react`
 
-Boothlev uses a lightweight Monorepo-style architecture separated into two projects:
+Syzhaa uses a lightweight Monorepo-style architecture separated into two projects:
 - **`frontend`**: The main frontend, 100% static React (Next.js) app.
 - **`backend`**: The standalone Node.js Express server that handles AI processing locally.
 
@@ -58,7 +58,7 @@ The API server will run on `http://localhost:4000`.
 
 ## 🎨 Design Philosophy
 
-Boothlev utilizes a **Neo-Brutalism** design language inspired by modern, playful web trends. It features:
+Syzhaa utilizes a **Neo-Brutalism** design language inspired by modern, playful web trends. It features:
 - High contrast colors and thick, stark borders (`brutal-border`).
 - Sharp, prominent shadows (`brutal-shadow-lg`).
 - Heavy typography (using **Archivo Black** and **Inter**).
@@ -67,5 +67,5 @@ Boothlev utilizes a **Neo-Brutalism** design language inspired by modern, playfu
 ---
 
 <div align="center">
-  <b>Boothlev</b> is an Open Source Project proudly brought to you by <b>PT Lembur Demi Waifu</b> 💖
+  <b>Syzhaa</b> is an Open Source Project proudly brought to you by <b>PT Lembur Demi Waifu</b> 💖
 </div>

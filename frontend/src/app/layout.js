@@ -21,7 +21,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-  title: "Boothlev | Neo-Brutalist Photobooth",
+  title: "Syzhaa | Neo-Brutalist Photobooth",
   description: "Authentic photobooth experience in your browser",
 };
 

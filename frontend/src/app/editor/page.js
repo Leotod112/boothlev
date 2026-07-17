@@ -399,7 +399,7 @@ function EditorPageContent() {
       });
 
       const link = document.createElement("a");
-      link.download = `boothlev-${template.id}-${Date.now()}.png`;
+      link.download = `syzhaa-${template.id}-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -617,7 +617,7 @@ function EditorPageContent() {
                  className="absolute bottom-8 w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
                  style={{ color: getContrastColor(bgColor) }}
                >
-                 <span className="font-archivo text-[50px] uppercase font-bold leading-none">BOOTHLEV</span>
+                 <span className="font-archivo text-[50px] uppercase font-bold leading-none">SYZHAA</span>
                  <span className="text-sm font-bold mt-1">booth.ktik.me</span>
                </div>
              </div>

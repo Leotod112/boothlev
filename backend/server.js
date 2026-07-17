@@ -5,7 +5,7 @@ import sharp from 'sharp';
 import { pipeline, env, RawImage } from '@huggingface/transformers';
 
 const app = express();
-const port = 4000;
+const port = 4005;
 
 app.use(cors());
 
@@ -91,5 +91,5 @@ app.post('/api/remove-bg', upload.single('image'), async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`🚀 Boothlev API server running at http://localhost:${port}`);
+  console.log(`🚀 Syzhaa API server running at http://localhost:${port}`);
 });

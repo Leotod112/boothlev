@@ -7,7 +7,7 @@ export default function Navbar() {
         <div className="w-10 h-10 bg-primary brutal-border brutal-shadow-sm flex items-center justify-center font-archivo text-xl">
           B
         </div>
-        <span className="font-archivo text-2xl tracking-tight uppercase">Boothlev</span>
+        <span className="font-archivo text-2xl tracking-tight uppercase">Syzhaa</span>
       </Link>
       <div className="hidden md:flex items-center gap-6">
         <span className="bg-secondary text-text-dark brutal-border px-3 py-1 font-black text-xs uppercase tracking-widest brutal-shadow-sm">

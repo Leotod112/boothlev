@@ -9,12 +9,12 @@ export default function PrivacyPolicy() {
           
           <h2 className="font-archivo text-2xl uppercase mt-8">1. Pengumpulan Data</h2>
           <p>
-            Di Boothlev, privasi Anda adalah prioritas utama kami. Sebagian besar fitur kami dirancang untuk berjalan sepenuhnya di perangkat Anda (Client-Side), sehingga tidak ada data yang dikumpulkan.
+            Di Syzhaa, privasi Anda adalah prioritas utama kami. Sebagian besar fitur kami dirancang untuk berjalan sepenuhnya di perangkat Anda (Client-Side), sehingga tidak ada data yang dikumpulkan.
           </p>
 
           <h2 className="font-archivo text-2xl uppercase mt-8">2. Kamera dan Foto</h2>
           <p>
-            Boothlev meminta izin akses kamera murni untuk menampilkan pratinjau dan mengambil foto di peramban Anda. Foto-foto ini disimpan secara lokal menggunakan memori peramban Anda (Local Storage / IndexedDB). Kami tidak pernah mengunggah, melihat, atau membagikan foto-foto hasil jepretan Anda ke server mana pun.
+            Syzhaa meminta izin akses kamera murni untuk menampilkan pratinjau dan mengambil foto di peramban Anda. Foto-foto ini disimpan secara lokal menggunakan memori peramban Anda (Local Storage / IndexedDB). Kami tidak pernah mengunggah, melihat, atau membagikan foto-foto hasil jepretan Anda ke server mana pun.
           </p>
 
           <h2 className="font-archivo text-2xl uppercase mt-8">3. Fitur AI Background Removal</h2>

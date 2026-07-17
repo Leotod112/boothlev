@@ -1,7 +1,7 @@
 # UI Design & Templates Guidelines
 
 ## 1. Design Aesthetic: Neo-Brutalism
-Boothlev adopts a **Neo-Brutalism** visual identity heavily inspired by modern photobooth platforms (such as Poketo.id). This aesthetic is chosen to make the app feel bold, expressive, and fun—matching the physical photobooth experience.
+Syzhaa adopts a **Neo-Brutalism** visual identity heavily inspired by modern photobooth platforms (such as Poketo.id). This aesthetic is chosen to make the app feel bold, expressive, and fun—matching the physical photobooth experience.
 
 ### Key Characteristics:
 - **Typography:** 
@@ -17,7 +17,7 @@ Boothlev adopts a **Neo-Brutalism** visual identity heavily inspired by modern p
   - Hover states shift elements up and left (`hover:translate-x-[2px]`, `hover:-translate-y-[2px]`).
 
 ## 2. Template System
-Boothlev offers a comprehensive template system representing classic physical photobooth prints. Currently, 16 distinct templates are implemented across three primary categories.
+Syzhaa offers a comprehensive template system representing classic physical photobooth prints. Currently, 16 distinct templates are implemented across three primary categories.
 
 ### Category 1: PHOTOSTRIP (2R)
 Vertical strips typically featuring 3 to 4 square photos.

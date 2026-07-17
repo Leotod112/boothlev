@@ -34,7 +34,7 @@ export const useStore = create(
       resetSession: () => set({ photos: [], templateId: null, stickers: [], bgColor: "" }),
     }),
     {
-      name: 'boothlev-storage', // saves to localStorage
+      name: 'syzhaa-storage', // saves to localStorage
     }
   )
 );

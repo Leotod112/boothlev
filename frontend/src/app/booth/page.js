@@ -139,7 +139,7 @@ function BoothPageContent() {
           ← Kembali
         </Link>
         <div className="font-archivo text-xl uppercase tracking-tighter">
-          BOOTHLEV
+          SYZHAA
         </div>
       </nav>
 
