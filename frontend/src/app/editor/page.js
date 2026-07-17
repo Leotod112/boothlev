@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import { useStore } from "@/store/useStore";
 import MaskEditorModal from "@/components/MaskEditorModal";
+import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 import Cropper from "react-easy-crop";
 import * as htmlToImage from "html-to-image";
 
@@ -574,17 +575,25 @@ function EditorPageContent() {
               className="w-full h-full relative overflow-hidden flex flex-col items-center bg-white"
               style={{ backgroundColor: bgColor }}
             >
+               {template.specialFrame === 'pixenze' && (
+                 <PixenzeFrameDecor width={template.width} height={template.height} />
+               )}
+
                {/* Dynamic Layout Slots */}
                <div className="absolute inset-0 w-full h-full">
                   {template.layout.map((slot, i) => (
                     <div 
                       key={i}
-                      className="absolute"
+                      className="absolute overflow-hidden"
                       style={{
                         left: slot.x,
                         top: slot.y,
                         width: slot.w,
                         height: slot.h,
+                        backgroundColor: template.slotBgColor || '#e5e7eb',
+                        borderRadius: template.slotShape === 'rounded' ? 28 : template.slotShape === 'deco' ? '0px 40px 0px 40px' : 0,
+                        border: template.slotBorderWidth ? `${template.slotBorderWidth}px solid ${template.slotBorderColor || '#111111'}` : 'none',
+                        zIndex: 10,
                       }}
                     >
                       <SlotEditor 
@@ -613,13 +622,15 @@ function EditorPageContent() {
                ))}
 
                {/* Footer Text */}
-               <div 
-                 className="absolute bottom-8 w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
-                 style={{ color: getContrastColor(bgColor) }}
-               >
-                 <span className="font-archivo text-[50px] uppercase font-bold leading-none">SYZHAA</span>
-                 <span className="text-sm font-bold mt-1">booth.ktik.me</span>
-               </div>
+               {!template.hideDefaultFooter && (
+                 <div 
+                   className="absolute bottom-8 w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
+                   style={{ color: getContrastColor(bgColor) }}
+                 >
+                   <span className="font-archivo text-[50px] uppercase font-bold leading-none">SYZHAA</span>
+                   <span className="text-sm font-bold mt-1">booth.ktik.me</span>
+                 </div>
+               )}
              </div>
           </div>
         </div>

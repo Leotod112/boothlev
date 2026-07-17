@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Camera, Image as ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
+import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 
 export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -48,23 +49,30 @@ export default function TemplatesPage() {
                       backgroundColor: t.frameColor,
                     }}
                   >
-                     {/* Canvas Texture Overlay */}
-                     <div className="absolute inset-0 opacity-[0.15] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMwMDAiIC8+PC9zdmc+')] mix-blend-overlay pointer-events-none"></div>
+                     {/* Special decorative frame / Canvas Texture Overlay */}
+                     {t.specialFrame === 'pixenze' ? (
+                       <PixenzeFrameDecor width={t.width} height={t.height} />
+                     ) : (
+                       <div className="absolute inset-0 opacity-[0.15] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiMwMDAiIC8+PC9zdmc+')] mix-blend-overlay pointer-events-none"></div>
+                     )}
                      
                      {/* Slots using percentages */}
                      <div className="absolute inset-0 w-full h-full">
                         {t.layout.map((slot, i) => (
                           <div 
                             key={i} 
-                            className="absolute bg-gray-300 overflow-hidden flex items-center justify-center shadow-inner" 
+                            className="absolute overflow-hidden flex items-center justify-center shadow-inner" 
                             style={{
                                left: `${(slot.x / t.width) * 100}%`,
                                top: `${(slot.y / t.height) * 100}%`,
                                width: `${(slot.w / t.width) * 100}%`,
                                height: `${(slot.h / t.height) * 100}%`,
+                               backgroundColor: t.slotBgColor || '#d1d5db',
                                borderRadius: t.slotShape === 'rounded' ? '8px' : 
                                             t.slotShape === 'deco' ? '0px 8px 0px 8px' : '0px',
-                               border: t.slotShape === 'wavy' ? '1px dashed rgba(0,0,0,0.2)' : 'none'
+                               border: t.slotBorderWidth ? `${Math.max(1, t.slotBorderWidth / 8)}px solid ${t.slotBorderColor || '#111111'}` :
+                                            t.slotShape === 'wavy' ? '1px dashed rgba(0,0,0,0.2)' : 'none',
+                               zIndex: 10,
                             }} 
                           >
                             <Camera className="w-3 h-3 text-gray-500/40" />
@@ -91,13 +99,15 @@ export default function TemplatesPage() {
                      )}
                      
                      {/* Photobooth Footer Text */}
-                     <div 
-                       className="absolute bottom-[2%] w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
-                       style={{ color: t.textColor }}
-                     >
-                       <span className="font-archivo text-[6px] uppercase font-bold leading-none">SYZHAA</span>
-                       <span className="text-[3.5px] font-bold mt-0.5">booth.ktik.me</span>
-                     </div>
+                     {!t.hideDefaultFooter && (
+                       <div 
+                         className="absolute bottom-[2%] w-full text-center font-inter tracking-widest z-10 flex flex-col items-center justify-center"
+                         style={{ color: t.textColor }}
+                       >
+                         <span className="font-archivo text-[6px] uppercase font-bold leading-none">SYZHAA</span>
+                         <span className="text-[3.5px] font-bold mt-0.5">booth.ktik.me</span>
+                       </div>
+                     )}
                   </div>
                   
                   {/* Hover backdrop fill */}

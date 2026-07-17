@@ -392,5 +392,27 @@ templates.push(
       { emoji: "📎", x: 850, y: 220, size: 150 },
       { emoji: "🔖", x: 100, y: 620, size: 140 }
     ]
+  },
+  {
+    id: "pixenze-psychedelic-6",
+    category: "PHOTOSTRIP",
+    name: "Pixenze Psychedelic",
+    description: "6-photo retro mushroom frame",
+    width: 900, height: 1600, slots: 6,
+    frameColor: "#80C9ED", textColor: "#FFF0C7", slotShape: "rounded",
+    specialFrame: "pixenze",
+    slotBgColor: "#050505",
+    slotBorderColor: "#FFF0C7",
+    slotBorderWidth: 14,
+    hideDefaultFooter: true,
+    layout: [
+      { x: 96, y: 420, w: 318, h: 280 },
+      { x: 486, y: 420, w: 318, h: 280 },
+      { x: 96, y: 735, w: 318, h: 280 },
+      { x: 486, y: 735, w: 318, h: 280 },
+      { x: 96, y: 1050, w: 318, h: 280 },
+      { x: 486, y: 1050, w: 318, h: 280 }
+    ],
+    stickers: []
   }
 );
