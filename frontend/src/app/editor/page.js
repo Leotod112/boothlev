@@ -7,6 +7,7 @@ import { Download, ImagePlus, Palette, ArrowLeft, Trash2, GripHorizontal } from 
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import { useStore } from "@/store/useStore";
+import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 import MaskEditorModal from "@/components/MaskEditorModal";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 import Cropper from "react-easy-crop";
@@ -212,7 +213,8 @@ function EditorPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
-  const template = templates.find((t) => t.id === templateId);
+  const customFrames = useCustomFrameStore((s) => s.frames);
+  const template = [...templates, ...customFrames].find((t) => t.id === templateId);
 
   const globalPhotos = useStore((state) => state.photos);
   const replacePhoto = useStore((state) => state.replacePhoto);

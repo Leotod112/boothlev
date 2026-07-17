@@ -6,12 +6,14 @@ import Link from "next/link";
 import { Camera, RefreshCw, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
+import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 
 function CapturePageContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
-  const template = templates.find(t => t.id === templateId) || templates[0];
+  const customFrames = useCustomFrameStore((s) => s.frames);
+  const template = [...templates, ...customFrames].find(t => t.id === templateId) || templates[0];
   
   const videoRef = useRef(null);
   const [stream, setStream] = useState(null);

@@ -6,13 +6,15 @@ import Link from "next/link";
 import { Camera, RefreshCw, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
+import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 import { useStore } from "@/store/useStore";
 
 function BoothPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
-  const template = templates.find((t) => t.id === templateId);
+  const customFrames = useCustomFrameStore((s) => s.frames);
+  const template = [...templates, ...customFrames].find((t) => t.id === templateId);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
