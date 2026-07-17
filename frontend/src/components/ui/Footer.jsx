@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Github } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -15,6 +16,9 @@ export default function Footer() {
         </a>
         .
       </p>
+      <div className="flex items-center justify-center mt-3 text-sm font-bold text-gray-300 gap-2">
+         <Github className="w-5 h-5" /> Fork from <a href="https://github.com/Leotod112/boothlev" target="_blank" className="hover:text-white underline underline-offset-4 decoration-white">BOOTHLEV</a>
+      </div>
       <div className="flex items-center justify-center gap-4 mt-4 text-xs font-archivo uppercase opacity-60">
         <Link href="/tos" className="hover:text-primary transition-colors hover:underline decoration-primary underline-offset-4">
           Terms of Service

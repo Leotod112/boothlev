@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Camera, Sparkles, Image as ImageIcon, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import AdSlider from "@/components/ui/AdSlider";
 
 export default function Home() {
   return (
@@ -125,8 +124,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Ad Slider */}
-      <AdSlider />
     </div>
   );
 }
