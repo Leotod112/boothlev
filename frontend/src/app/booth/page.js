@@ -15,6 +15,8 @@ function BoothPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
+  const customFrames = useCustomFrameStore((s) => s.frames);
+  const selectedTemplate = [...templates, ...customFrames].find((t) => t.id === templateId);
   
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -154,7 +156,7 @@ function BoothPageContent() {
       <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between">
         <button onClick={() => {
           stopCamera();
-          if (templateId) router.push(`/editor?template=${templateId}`);
+          if (templateId) router.push(`/templates`);
           else router.push("/");
         }} className="font-archivo text-xl hover:underline decoration-4">
           ← Kembali
@@ -266,6 +268,13 @@ function BoothPageContent() {
               <h3 className="font-archivo text-lg uppercase">Foto Kamu</h3>
               <span className="text-xs font-bold text-gray-500">{localPhotos.length} foto</span>
             </div>
+            
+            {/* Show which template is selected, if any */}
+            {selectedTemplate && (
+              <div className="bg-yellow-100 p-2 text-xs font-bold uppercase text-center brutal-border-b">
+                Mode: {selectedTemplate.name}
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {localPhotos.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
@@ -288,7 +297,7 @@ function BoothPageContent() {
             </div>
             <div className="p-3 border-t-4 border-black">
               <Button onClick={proceedToTemplates} disabled={localPhotos.length === 0} className="w-full h-14 bg-primary text-black hover:bg-[#86efac] text-lg">
-                {templateId ? "KEMBALI KE EDITOR" : "PILIH BINGKAI"} <ArrowRight className="ml-2 w-5 h-5" />
+                {templateId ? "SELESAI" : "PILIH BINGKAI"} <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <p className="text-[10px] text-gray-500 text-center mt-2 font-bold uppercase">
                 {localPhotos.length === 0 ? "Atur lalu mulai foto" : `${localPhotos.length} foto siap`}

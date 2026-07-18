@@ -212,7 +212,7 @@ export default function TemplatesPage() {
                 </Link>
               )}
               
-              <Link href={`/booth`} onClick={() => setSelectedTemplate(null)} className="block w-full">
+              <Link href={`/booth?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
                 <Button className="w-full h-16 flex items-center justify-start gap-4 text-left group">
                   <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:rotate-12 transition-transform">
                     <Camera className="w-5 h-5" />
