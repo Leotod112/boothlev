@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Camera, ImagePlus, Clock, ArrowRight, Trash2, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useStore } from "@/store/useStore";
-
+import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 import { templates } from "@/lib/templates";
 
 const BATCH_OPTIONS = [2, 4, 6, 8, 10];
