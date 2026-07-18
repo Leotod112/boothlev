@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Trash2, GripHorizontal, ImagePlus, Plus, X, Palette as PaletteIcon } from "lucide-react";
+import { ArrowLeft, Trash2, GripHorizontal, ImagePlus, Plus, X, Palette as PaletteIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { templates } from "@/lib/templates";
 import { useStore } from "@/store/useStore";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
@@ -137,6 +137,7 @@ function EditorPageContent() {
   const containerRef = useRef(null);
   const customImageInputRef = useRef(null);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(true);
 
   useEffect(() => {
     if (!template) return;
@@ -273,21 +274,40 @@ function EditorPageContent() {
         <Link href="/templates" className="flex items-center gap-2 font-archivo text-lg hover:underline"><ArrowLeft className="w-5 h-5" /> Kembali</Link>
         <span className="text-xs font-bold text-gray-500 hidden sm:block">{template.name} • {template.slots} slot</span>
         <div className="flex gap-2">
-          <button onClick={() => setShowLeftPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold">
+          <button onClick={() => setShowLeftPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold transition-colors hover:bg-gray-300">
             {showLeftPanel ? 'Tutup Galeri' : 'Buka Galeri'}
           </button>
-          <Link href={`/booth?template=${templateId}`} className="px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold flex items-center gap-1">
-            <Camera className="w-3 h-3" /> Ambil Foto Baru
+          <button onClick={() => setShowRightPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold transition-colors hover:bg-gray-300">
+            {showRightPanel ? 'Tutup Alat' : 'Buka Alat'}
+          </button>
+          <Link href={`/booth?template=${templateId}`} className="px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold flex items-center gap-1 hover:bg-gray-300">
+            <Camera className="w-3 h-3" /> Foto Baru
           </Link>
-          <button onClick={handleExport} disabled={isExporting} className="px-4 py-1.5 bg-accent text-white rounded brutal-border text-xs font-bold">{isExporting ? "..." : "Download"}</button>
+          <button onClick={handleExport} disabled={isExporting} className="px-4 py-1.5 bg-accent text-white rounded brutal-border text-xs font-bold hover:bg-black">{isExporting ? "..." : "Download"}</button>
         </div>
       </div>
 
       {/* MAIN */}
       <div className="flex-1 flex relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
         {/* LEFT PANEL - Photo Gallery (Desktop) */}
-        <div className={`${showLeftPanel ? 'block' : 'hidden'} md:block w-56 lg:w-64 border-r-4 border-black bg-white shrink-0 overflow-hidden`}>
-          <PhotoGallery />
+        <div 
+          className={`hidden md:flex transition-all duration-300 ease-in-out border-r-4 border-black bg-white shrink-0 overflow-hidden relative ${showLeftPanel ? 'w-56 lg:w-64' : 'w-10'}`}
+        >
+          {/* Collapse Toggle Button */}
+          <button 
+            onClick={() => setShowLeftPanel(v => !v)}
+            className="absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-16 bg-white brutal-border rounded-l-full flex items-center justify-start pl-1 z-30 hover:bg-gray-100 hidden" 
+          />
+          {showLeftPanel ? (
+            <div className="w-56 lg:w-64 flex-1 h-full overflow-hidden">
+              <PhotoGallery />
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center py-4 border-r-4 border-black cursor-pointer bg-gray-100 hover:bg-gray-200" onClick={() => setShowLeftPanel(true)}>
+              <ChevronRight className="w-5 h-5 text-gray-500 mb-2" />
+              <span className="font-archivo text-xs uppercase text-gray-500" style={{ writingMode: "vertical-rl" }}>Galeri Foto</span>
+            </div>
+          )}
         </div>
 
         {/* CENTER - Canvas */}
@@ -326,8 +346,19 @@ function EditorPageContent() {
         </div>
 
         {/* RIGHT PANEL - Controls (Desktop) */}
-        <div className="hidden md:block w-56 lg:w-72 border-l-4 border-black bg-white shrink-0 overflow-hidden">
-          {rightPanelContent}
+        <div 
+          className={`hidden md:flex transition-all duration-300 ease-in-out border-l-4 border-black bg-white shrink-0 overflow-hidden relative ${showRightPanel ? 'w-56 lg:w-72' : 'w-10'}`}
+        >
+          {showRightPanel ? (
+            <div className="w-56 lg:w-72 flex-1 h-full overflow-hidden">
+              {rightPanelContent}
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center py-4 cursor-pointer bg-gray-100 hover:bg-gray-200" onClick={() => setShowRightPanel(true)}>
+              <ChevronLeft className="w-5 h-5 text-gray-500 mb-2" />
+              <span className="font-archivo text-xs uppercase text-gray-500" style={{ writingMode: "vertical-rl" }}>Alat Edit</span>
+            </div>
+          )}
         </div>
 
         {/* MOBILE OVERLAYS */}
