@@ -8,6 +8,7 @@ export const useStore = create(
       templateId: null,
       stickers: [],
       bgColor: "",
+      photoGallery: [], // unlimited captured photos
       
       setTemplate: (id) => set({ templateId: id }),
       
@@ -25,13 +26,24 @@ export const useStore = create(
         return { photos: newPhotos };
       }),
 
+      // Gallery operations
+      addToGallery: (dataUrl) => set((state) => ({
+        photoGallery: [...state.photoGallery, dataUrl],
+      })),
+
+      removeFromGallery: (index) => set((state) => ({
+        photoGallery: state.photoGallery.filter((_, i) => i !== index),
+      })),
+
+      clearGallery: () => set({ photoGallery: [] }),
+
       setStickers: (stickersUpdater) => set((state) => ({
         stickers: typeof stickersUpdater === 'function' ? stickersUpdater(state.stickers) : stickersUpdater
       })),
 
       setBgColor: (bgColor) => set({ bgColor }),
       
-      resetSession: () => set({ photos: [], templateId: null, stickers: [], bgColor: "" }),
+      resetSession: () => set({ photos: [], templateId: null, stickers: [], bgColor: "", photoGallery: [] }),
     }),
     {
       name: 'syzhaa-storage', // saves to localStorage

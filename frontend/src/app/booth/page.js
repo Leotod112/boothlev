@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Camera, RefreshCw, Check, ArrowRight } from "lucide-react";
+import { Camera, Check, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
@@ -28,7 +28,7 @@ function BoothPageContent() {
   
   // Local state before saving to global store
   const [localPhotos, setLocalPhotos] = useState([]);
-  const setGlobalPhotos = useStore((state) => state.setPhotos);
+  const addToGallery = useStore((state) => state.addToGallery);
 
   useEffect(() => {
     if (!template) {
@@ -62,15 +62,32 @@ function BoothPageContent() {
     }
   };
 
-  const startSequence = () => {
-    if (localPhotos.length >= template.slots) return;
-    runCountdown();
+  const takePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    // Flash effect
+    setIsFlashing(true);
+    setTimeout(() => setIsFlashing(false), 200);
+
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    const ctx = canvas.getContext("2d");
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    addToGallery(dataUrl);
+    setLocalPhotos((prev) => [...prev, dataUrl]);
   };
 
-  const runCountdown = () => {
+  const handleTakePhoto = () => {
     let count = 3;
     setCountdown(count);
-    
     const interval = setInterval(() => {
       count -= 1;
       if (count > 0) {
@@ -83,53 +100,25 @@ function BoothPageContent() {
     }, 1000);
   };
 
-  const takePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    // Flash effect
-    setIsFlashing(true);
-    setTimeout(() => setIsFlashing(false), 200);
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    // Set canvas to video actual dimensions
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    const ctx = canvas.getContext("2d");
-    
-    // If it's a front camera, we should probably un-mirror the saved image since the video preview is mirrored via CSS.
-    // To match reality, we flip horizontally when drawing to canvas.
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-    
-    setLocalPhotos((prev) => {
-      const updated = [...prev, dataUrl];
-      
-      if (updated.length < template.slots) {
-        // Wait 1.5s then start next photo
-        setTimeout(() => runCountdown(), 1500);
-      } else {
-        // All photos taken, go to review
-        setTimeout(() => setMode("REVIEW"), 1000);
-      }
-      return updated;
-    });
-  };
-
-  const retakeAll = () => {
-    setLocalPhotos([]);
-    setMode("CAMERA");
+  const retakeSingle = (index) => {
+    // Remove from both gallery and local display
+    // We just remove from local UI; gallery stays but that's ok
+    setLocalPhotos((prev) => prev.filter((_, i) => i !== index));
+    // Can't easily remove from gallery without index there, but we also add later
+    setCountdown(3); // immediately start countdown to retake
+    setTimeout(() => {
+      takePhoto();
+    }, 500);
   };
 
   const proceedToEditor = () => {
-    setGlobalPhotos(localPhotos);
     stopCamera();
     router.push(`/editor?template=${templateId}`);
+  };
+
+  const goBackToTemplates = () => {
+    stopCamera();
+    router.push("/templates");
   };
 
   if (!template) return null;
@@ -157,7 +146,7 @@ function BoothPageContent() {
         <div className="flex-1 flex flex-col items-center max-w-4xl mx-auto w-full">
           <div className="mb-4 flex items-center justify-between w-full">
             <div className="bg-primary text-black font-black uppercase px-4 py-2 brutal-border text-sm">
-              Foto {localPhotos.length} / {template.slots}
+              Foto {localPhotos.length} (tanpa batas)
             </div>
             <div className="bg-white text-black font-black uppercase px-4 py-2 brutal-border text-sm">
               {template.name}
@@ -190,14 +179,24 @@ function BoothPageContent() {
             )}
           </div>
 
-          {!countdown && localPhotos.length < template.slots && (
-            <Button 
-              onClick={startSequence}
-              className="w-full max-w-sm h-16 text-xl bg-accent text-white hover:bg-black group"
-            >
-              <Camera className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
-              {localPhotos.length === 0 ? "MULAI FOTO" : "LANJUT FOTO"}
-            </Button>
+          {!countdown && (
+            <div className="flex flex-col items-center gap-3 w-full max-w-sm">
+              <Button 
+                onClick={handleTakePhoto}
+                className="w-full h-16 text-xl bg-accent text-white hover:bg-black group"
+              >
+                <Camera className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
+                {localPhotos.length === 0 ? "MULAI FOTO" : "AMBIL LAGI"}
+              </Button>
+              {localPhotos.length > 0 && (
+                <Button 
+                  onClick={proceedToEditor}
+                  className="w-full h-12 bg-primary text-black hover:bg-[#86efac]"
+                >
+                  SELESAI & KE EDITOR ({localPhotos.length} foto)
+                </Button>
+              )}
+            </div>
           )}
         </div>
       ) : (
@@ -223,11 +222,10 @@ function BoothPageContent() {
 
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button 
-              onClick={retakeAll} 
+              onClick={goBackToTemplates} 
               className="bg-white text-black hover:bg-gray-200 h-14 md:w-64"
             >
-              <RefreshCw className="mr-2 w-5 h-5" />
-              FOTO ULANG SEMUA
+              GANTI TEMPLATE
             </Button>
             <Button 
               onClick={proceedToEditor}
