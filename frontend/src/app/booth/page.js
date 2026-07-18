@@ -22,7 +22,7 @@ function BoothPageContent() {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
 
-  const [hasPermission, setHasPermission] = useState(false);
+  const [permissionState, setPermissionState] = useState("checking"); // 'checking' | 'prompting' | 'granted' | 'denied'
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isFlashing, setIsFlashing] = useState(false);
@@ -44,23 +44,50 @@ function BoothPageContent() {
     }
   }, []);
 
+  // Check initial permission status on mount
   useEffect(() => {
-    startCamera();
+    const checkPerm = async () => {
+      try {
+        const result = await navigator.permissions.query({ name: 'camera' });
+        if (result.state === 'granted') {
+          startCamera();
+        } else if (result.state === 'denied') {
+          setPermissionState('denied');
+        } else {
+          setPermissionState('prompting'); // 'prompt' means we need to ask
+        }
+        
+        result.onchange = () => {
+          if (result.state === 'granted') startCamera();
+          else if (result.state === 'denied') { setPermissionState('denied'); stopCamera(); }
+        };
+      } catch (e) {
+        // Fallback for browsers that don't support permissions.query for camera
+        setPermissionState('prompting');
+      }
+    };
+    checkPerm();
     return () => stopCamera();
   }, []);
 
+  const requestCameraAccess = () => {
+    startCamera();
+  };
+
   const startCamera = async () => {
     try {
+      setPermissionState('prompting');
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
       if (videoRef.current) videoRef.current.srcObject = stream;
       streamRef.current = stream;
-      setHasPermission(true);
+      setPermissionState('granted');
       setError("");
     } catch (err) {
       console.error("Camera Error:", err);
+      setPermissionState('denied');
       if (err.name === 'NotAllowedError') {
         setError("Izin kamera ditolak browser. Cek ikon gembok (🔒) di URL bar dan izinkan akses kamera, lalu refresh.");
       } else if (err.name === 'NotFoundError') {
@@ -174,7 +201,30 @@ function BoothPageContent() {
         <div className="text-sm font-bold text-gray-500">{localPhotos.length} foto</div>
       </div>
 
-      {error ? (
+      {permissionState === 'prompting' && !error ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white brutal-border brutal-shadow-lg w-full max-w-sm animate-in zoom-in-95 duration-200">
+            <div className="p-4 border-b-4 border-black bg-primary">
+              <h3 className="font-archivo text-xl uppercase tracking-tighter text-center">Izin Kamera</h3>
+            </div>
+            <div className="p-6 flex flex-col items-center gap-4 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center brutal-border mb-2 animate-bounce">
+                <Camera className="w-8 h-8" />
+              </div>
+              <p className="font-bold text-lg leading-tight">Syzhaa Booth butuh akses kamera kamu nih!</p>
+              <p className="text-xs text-gray-600 font-medium mb-2">
+                Biar bisa jepret foto langsung dari browser. Tenang aja, ini aman 100% dan ga disimpan di server tanpa izin.
+              </p>
+              <Button onClick={requestCameraAccess} className="w-full bg-accent text-white hover:bg-black text-lg h-14">
+                OKE, IZINKAN!
+              </Button>
+              <p className="text-[10px] text-gray-400 font-bold mt-2">
+                Nanti akan muncul popup browser, klik "Allow" atau "Izinkan".
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : permissionState === 'denied' || error ? (
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="bg-red-200 border-4 border-black p-6 shadow-[8px_8px_0_#111111] max-w-md text-center">
             <h2 className="font-archivo text-2xl mb-4">KAMERA ERROR</h2>
