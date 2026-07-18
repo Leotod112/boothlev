@@ -350,7 +350,7 @@ export default function UploadBingkaiPage() {
                 alt="Overlay" 
                 className={`w-full h-full object-contain pointer-events-none ${mode !== 'idle' ? 'opacity-50' : ''}`} 
                 onLoad={(e) => {
-                  const ctx = canvasRef.current.getContext("2d");
+                  const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
                   canvasRef.current.width = imageSize.w;
                   canvasRef.current.height = imageSize.h;
                   ctx.drawImage(e.target, 0, 0, imageSize.w, imageSize.h);
