@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft, Save, Plus, Trash2, Grid3x3, Palette,
+  ArrowLeft, Save, Plus, Trash2, Palette,
   Move, Square, Maximize2, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -33,6 +33,8 @@ export default function CustomFramePage() {
   const [dragging, setDragging] = useState(null);
   const [resizing, setResizing] = useState(null);
   const [scale, setScale] = useState(0.5);
+  const [gridRows, setGridRows] = useState(2);
+  const [gridCols, setGridCols] = useState(1);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const dragStart = useRef(null);
@@ -117,36 +119,26 @@ export default function CustomFramePage() {
     window.addEventListener("pointerup", onUp);
   };
 
-  const addNewSlot = () => {
-    const n = ef.layout.length + 1;
-    const cols = Math.min(4, n);
-    const rows = Math.ceil(n / cols);
+  const buildGrid = (rows, cols) => {
+    const n = rows * cols;
     const gap = 18;
     const m = 35;
-    const sw = Math.floor((ef.width - m * 2 - gap * (cols - 1)) / cols);
-    const sh = Math.floor((ef.height - m * 2 - gap * (rows - 1)) / rows);
+    const aw = ef.width - m * 2 - gap * (cols - 1);
+    const sw = Math.floor(aw / cols);
+    const ah = ef.height - m * 2 - gap * (rows - 1);
+    const sh = Math.floor(ah / rows);
     const layout = [];
     for (let i = 0; i < n; i++) {
       layout.push({ x: m + (i % cols) * (sw + gap), y: m + Math.floor(i / cols) * (sh + gap), w: sw, h: sh });
     }
-    setEf(prev => ({ ...prev, slots: n, layout }));
-  };
-
-  const setGrid = (count) => {
-    const n = Math.max(1, count);
-    const cols = Math.min(4, n);
-    const rows = Math.ceil(n / cols);
-    const gap = 18;
-    const m = 35;
-    const sw = Math.floor((ef.width - m * 2 - gap * (cols - 1)) / cols);
-    const sh = Math.floor((ef.height - m * 2 - gap * (rows - 1)) / rows);
-    const layout = [];
-    for (let i = 0; i < n; i++) {
-      layout.push({ x: m + (i % cols) * (sw + gap), y: m + Math.floor(i / cols) * (sh + gap), w: sw, h: sh });
-    }
+    setGridRows(rows);
+    setGridCols(cols);
     setEf(prev => ({ ...prev, slots: n, layout }));
     setSelectedSlot(null);
   };
+
+  const addRow = () => buildGrid(gridRows + 1, gridCols);
+  const addCol = () => buildGrid(gridRows, gridCols + 1);
 
   const borderStr = (s) => ef.slotBorderWidth > 0 ? `${ef.slotBorderWidth}px solid ${ef.slotBorderColor}` : 'none';
   const slotRadius = (s) => {
@@ -170,7 +162,7 @@ export default function CustomFramePage() {
           />
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-gray-500">{ef.layout.length} slot</span>
+          <span className="text-sm font-bold text-gray-500">{gridRows}×{gridCols} ({ef.layout.length} slot)</span>
           <Button onClick={handleSave} variant="primary" className="gap-2">
             <Save className="w-5 h-5" /> Simpan
           </Button>
@@ -351,26 +343,42 @@ export default function CustomFramePage() {
 
           {/* Actions */}
           <div className="space-y-3 pt-4 border-t-4 border-black">
-            <Button onClick={addNewSlot} variant="outline" className="w-full gap-2">
-              <Plus className="w-4 h-4" /> Tambah Slot
-            </Button>
+            <label className="font-black uppercase text-xs mb-1">Preset Grid</label>
+            <div className="grid grid-cols-3 gap-2">
+              <Button onClick={() => buildGrid(1, 2)} variant={gridRows === 1 && gridCols === 2 ? "primary" : "outline"} className="gap-1 text-xs">
+                1×2
+              </Button>
+              <Button onClick={() => buildGrid(2, 2)} variant={gridRows === 2 && gridCols === 2 ? "primary" : "outline"} className="gap-1 text-xs">
+                2×2
+              </Button>
+              <Button onClick={() => buildGrid(1, 3)} variant={gridRows === 1 && gridCols === 3 ? "primary" : "outline"} className="gap-1 text-xs">
+                1×3
+              </Button>
+              <Button onClick={() => buildGrid(2, 3)} variant={gridRows === 2 && gridCols === 3 ? "primary" : "outline"} className="gap-1 text-xs">
+                2×3
+              </Button>
+              <Button onClick={() => buildGrid(3, 3)} variant={gridRows === 3 && gridCols === 3 ? "primary" : "outline"} className="gap-1 text-xs">
+                3×3
+              </Button>
+              <Button onClick={() => buildGrid(3, 4)} variant={gridRows === 3 && gridCols === 4 ? "primary" : "outline"} className="gap-1 text-xs">
+                3×4
+              </Button>
+            </div>
+            <label className="font-black uppercase text-xs flex items-center gap-1 mt-2">
+              <Plus className="w-3 h-3" /> Tambah Baris / Kolom
+            </label>
             <div className="flex gap-2">
-              <Button onClick={() => setGrid(2)} variant={ef.layout.length === 2 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> 2
+              <Button onClick={addCol} variant="outline" className="flex-1 gap-1 text-xs">
+                ← Kolom ({gridCols})
               </Button>
-              <Button onClick={() => setGrid(3)} variant={ef.layout.length === 3 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> 3
-              </Button>
-              <Button onClick={() => setGrid(4)} variant={ef.layout.length === 4 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> 4
-              </Button>
-              <Button onClick={() => setGrid(6)} variant={ef.layout.length === 6 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> 6
+              <Button onClick={addRow} variant="outline" className="flex-1 gap-1 text-xs">
+                Baris ↓ ({gridRows})
               </Button>
             </div>
             <Button onClick={() => {
               setEf(prev => ({ ...DEFAULT_CUSTOM_FRAME, id: prev.id, name: prev.name }));
               setSelectedSlot(null);
+              setGridRows(2); setGridCols(1);
             }} variant="ghost" className="w-full gap-2 text-red-500">
               <RotateCcw className="w-4 h-4" /> Reset
             </Button>
@@ -380,9 +388,9 @@ export default function CustomFramePage() {
           <div className="bg-gray-100 p-4 rounded-lg text-xs space-y-2">
             <p className="font-bold uppercase text-gray-600">💡 Tips:</p>
             <ul className="list-disc pl-4 space-y-1 text-gray-600">
+              <li>Klik preset grid (1×2, 2×3, dll) untuk atur jumlah slot</li>
+              <li>"← Kolom" tambah slot ke samping, "Baris ↓" tambah ke bawah</li>
               <li>Klik slot untuk memilih (muncul handle resize)</li>
-              <li>Drag slot untuk memindahkan posisi</li>
-              <li>Seret pojok slot untuk mengubah ukuran</li>
               <li>Simpan, lalu pilih di menu template!</li>
             </ul>
           </div>
