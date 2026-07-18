@@ -234,7 +234,11 @@ function BoothPageContent() {
               <Button onClick={() => document.getElementById("fileUpload").click()} variant="outline" className="w-full">
                 <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
               </Button>
+              <Button onClick={() => document.getElementById("mobileCameraUpload").click()} className="w-full bg-green-500 hover:bg-green-600 text-white">
+                <Camera className="mr-2 w-4 h-4" /> PAKAI KAMERA HP (HTML5)
+              </Button>
               <input id="fileUpload" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+              <input id="mobileCameraUpload" type="file" accept="image/*" capture="user" onChange={handleUpload} className="hidden" />
             </div>
           </div>
         </div>
@@ -294,30 +298,40 @@ function BoothPageContent() {
               </div>
             )}
 
-            {/* Buttons */}
-            <div className="flex gap-3 flex-wrap justify-center">
+              {/* Buttons */}
+            <div className="flex gap-3 flex-wrap justify-center w-full">
               {!isBatchRunning ? (
                 <>
-                  {localPhotos.length === 0 ? (
-                    <Button onClick={startBatch} className="bg-accent text-white hover:bg-black h-14 px-8 text-lg">
-                      <Camera className="mr-2 w-5 h-5" /> MULAI {batchCount} FOTO
+                  <div className="flex w-full gap-2 justify-center max-w-lg">
+                    {localPhotos.length === 0 ? (
+                      <Button onClick={startBatch} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg">
+                        <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> MULAI {batchCount} FOTO
+                      </Button>
+                    ) : (
+                      <Button onClick={handleSingleShot} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg">
+                        <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> AMBIL LAGI
+                      </Button>
+                    )}
+                  </div>
+                  
+                  {/* ALTERNATIF KAMERA HP */}
+                  <div className="flex w-full gap-2 justify-center max-w-lg">
+                    <Button onClick={() => document.getElementById("mobileCameraUpload2").click()} className="flex-1 bg-green-500 hover:bg-green-600 text-white h-12 text-xs font-bold">
+                      <Camera className="mr-2 w-4 h-4" /> KAMERA HP MANUAL
                     </Button>
-                  ) : (
-                    <Button onClick={handleSingleShot} className="bg-accent text-white hover:bg-black h-14 px-8 text-lg">
-                      <Camera className="mr-2 w-5 h-5" /> AMBIL LAGI
+                    <Button onClick={() => document.getElementById("fileUpload2").click()} variant="outline" className="flex-1 h-12 text-xs font-bold">
+                      <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
                     </Button>
-                  )}
-                  <Button onClick={() => document.getElementById("fileUpload2").click()} variant="outline" className="h-14 px-6">
-                    <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD
-                  </Button>
+                  </div>
                 </>
               ) : (
-                <div className="bg-yellow-100 border-4 border-black px-6 py-3 rounded brutal-shadow-sm text-center">
+                <div className="bg-yellow-100 border-4 border-black px-6 py-3 rounded brutal-shadow-sm text-center w-full max-w-sm">
                   <p className="font-bold uppercase text-sm">Mengambil foto...</p>
                   <p className="text-xs mt-1">Progress: {batchProgress}/{batchCount}</p>
                 </div>
               )}
               <input id="fileUpload2" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+              <input id="mobileCameraUpload2" type="file" accept="image/*" capture="user" onChange={handleUpload} className="hidden" />
             </div>
           </div>
 
