@@ -268,7 +268,7 @@ export default function TwibbonBuilderPage() {
         <div className="w-full md:w-80 flex flex-col gap-4">
           <div className="bg-white brutal-border brutal-shadow-sm p-5 space-y-4">
             <h2 className="font-archivo text-xl uppercase">1. Upload Frame</h2>
-            <Button onClick={() => fileRef.current?.click()} className="w-full bg-accent text-white hover:bg-black">
+            <Button onClick={(e) => { e.preventDefault(); fileRef.current?.click(); }} type="button" className="w-full bg-accent text-white hover:bg-black">
               <Upload className="w-5 h-5 mr-2" /> UPLOAD FILE PNG
             </Button>
             <input type="file" accept="image/png, image/webp" ref={fileRef} onChange={handleUpload} className="hidden" />
