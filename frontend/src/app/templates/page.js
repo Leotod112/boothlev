@@ -1,19 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Camera, Image as ImageIcon, X, Plus, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
+import { fetchServerFrames } from "@/lib/frameApi";
 import { useStore } from "@/store/useStore";
 
 export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [frameLoadError, setFrameLoadError] = useState("");
   const customFrames = useCustomFrameStore((s) => s.frames);
+  const setServerFrames = useCustomFrameStore((s) => s.setServerFrames);
   const allTemplates = [...templates, ...customFrames.filter(f => f && f.layout && f.layout.length > 0)];
   const galleryCount = useStore((s) => s.photoGallery.length);
+
+  useEffect(() => {
+    let active = true;
+    fetchServerFrames()
+      .then((frames) => { if (active) setServerFrames(frames); })
+      .catch((error) => { if (active) setFrameLoadError(error.message); });
+    return () => { active = false; };
+  }, [setServerFrames]);
 
   return (
     <div className="min-h-[100dvh] p-6 md:p-12">
@@ -32,9 +43,15 @@ export default function TemplatesPage() {
           Langkah 1
         </div>
         <h1 className="font-archivo text-4xl md:text-6xl uppercase tracking-tighter mb-4">Pilih Template</h1>
-        <p className="text-gray-700 mb-12 font-medium text-lg max-w-2xl">
+        <p className="text-gray-700 mb-4 font-medium text-lg max-w-2xl">
           Pilih layout frame untuk photobooth lo. Nanti lo bakal foto sesuai dengan jumlah slot yang ada di template ini.
         </p>
+        {frameLoadError && (
+          <p className="mb-8 text-xs font-bold text-amber-700 bg-amber-100 border-2 border-amber-500 p-3 rounded">
+            Bingkai server belum termuat: {frameLoadError}. Bingkai lokal tetap tersedia.
+          </p>
+        )}
+        {!frameLoadError && <div className="mb-8" />}
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Tombol Buat Bingkai Baru */}
@@ -126,8 +143,8 @@ export default function TemplatesPage() {
                      </div>
 
                      {/* TWIBBON OVERLAY IMAGE */}
-                     {t.overlayImage && (
-                       <img src={t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
+                     {(t.overlayUrl || t.overlayImage) && (
+                       <img src={t.overlayUrl || t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
                      )}
 
                      {/* Decorative Stickers in Preview */}

@@ -25,6 +25,8 @@ const SHAPE_BORDER_RADIUS = {
   wavy: 0,
 };
 
+import { saveServerFrame } from "@/lib/frameApi";
+
 export default function CustomFramePage() {
   const router = useRouter();
   const store = useCustomFrameStore();
@@ -65,12 +67,23 @@ export default function CustomFramePage() {
     });
   }, []);
 
-  const handleSave = () => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
     if (!ef.name.trim()) return alert("Nama bingkai harus diisi!");
     const final = { ...ef, id: ef.id || `custom-${Date.now()}` };
-    store.saveFrame(final);
-    alert(`Bingkai "${ef.name}" disimpan!`);
-    router.push("/templates");
+    
+    setIsSaving(true);
+    try {
+      const serverFrame = await saveServerFrame(final, null);
+      store.upsertFrame(serverFrame);
+      alert(`Bingkai "${serverFrame.name}" disimpan ke server! Semua orang bisa pakai sekarang.`);
+      router.push("/templates");
+    } catch (err) {
+      console.error(err);
+      alert("Gagal menyimpan ke server: " + err.message);
+      setIsSaving(false);
+    }
   };
 
   // mouse handlers for dragging slots
@@ -165,8 +178,8 @@ export default function CustomFramePage() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold text-gray-500">{gridRows}×{gridCols} ({ef.layout.length} slot)</span>
-          <Button onClick={handleSave} variant="primary" className="gap-2">
-            <Save className="w-5 h-5" /> Simpan
+          <Button onClick={handleSave} variant="primary" disabled={isSaving} className="gap-2">
+            <Save className="w-5 h-5" /> {isSaving ? "Menyimpan..." : "Simpan"}
           </Button>
         </div>
       </div>

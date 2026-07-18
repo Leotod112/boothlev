@@ -30,7 +30,20 @@ export const useCustomFrameStore = create(
       editingIndex: -1,
       editingFrame: null,
       hasHydrated: false,
+      hasServerLoaded: false,
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
+      setServerFrames: (serverFrames) => set((state) => {
+        const remoteIds = new Set(serverFrames.map((frame) => frame.id));
+        const localOnly = state.frames.filter((frame) => !remoteIds.has(frame.id));
+        return { frames: [...serverFrames, ...localOnly], hasServerLoaded: true };
+      }),
+      upsertFrame: (frame) => set((state) => {
+        const index = state.frames.findIndex((item) => item.id === frame.id);
+        if (index < 0) return { frames: [frame, ...state.frames] };
+        const frames = [...state.frames];
+        frames[index] = frame;
+        return { frames };
+      }),
 
       // Load all saved custom frames
       getFrames: () => get().frames,

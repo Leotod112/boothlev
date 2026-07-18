@@ -162,25 +162,13 @@ function EditorPageContent() {
     setStickers(template.stickers ? [...template.stickers] : []);
   }, [template, globalPhotos, router, customFramesReady]);
 
-  // Ambil overlay Twibbon dari IndexedDB agar tidak hilang setelah refresh/pindah halaman.
+  // Ambil overlay Twibbon dari state agar tidak hilang.
+  // Template dari server akan membawa properti `overlayUrl` yang langsung terhubung ke API backend,
+  // sehingga kita tidak perlu IndexedDB / localStorage lagi untuk sinkronisasi antar perangkat.
   useEffect(() => {
-    let active = true;
-    let createdUrl = null;
-    const loadOverlay = async () => {
-      setOverlayUrl(null);
-      if (!template?.overlayStorageKey) {
-        setOverlayUrl(template?.overlayImage || null); // kompatibel untuk frame lama
-        return;
-      }
-      const url = await loadTwibbonOverlay(template.overlayStorageKey);
-      createdUrl = url;
-      if (active) setOverlayUrl(url);
-    };
-    loadOverlay();
-    return () => {
-      active = false;
-      revokeTwibbonOverlay(createdUrl);
-    };
+    if (template) {
+      setOverlayUrl(template.overlayUrl || template.overlayImage || null);
+    }
   }, [template]);
   const handleUpload = (index, dataUrl) => { const newPhotos = [...photos]; newPhotos[index] = dataUrl; setPhotos(newPhotos); };
   const handleDelete = (index) => { const newPhotos = [...photos]; newPhotos[index] = null; setPhotos(newPhotos); };

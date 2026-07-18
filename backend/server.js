@@ -3,6 +3,7 @@ import cors from 'cors';
 import multer from 'multer';
 import sharp from 'sharp';
 import { pipeline, env, RawImage } from '@huggingface/transformers';
+import { getOverlayPath, listFrames, removeFrame, saveFrame } from './frame-store.js';
 
 const app = express();
 const port = 4005;
@@ -35,6 +36,45 @@ class SegmenterPipeline {
 
 // Pre-load model on startup (optional, but good for UX so the first request isn't slow)
 SegmenterPipeline.getInstance().catch(console.error);
+
+// --- Lightweight server-side frame database (SQLite) ---
+app.get('/api/frames', (_req, res) => {
+  try {
+    res.json({ frames: listFrames() });
+  } catch (error) {
+    console.error('Frame list error:', error);
+    res.status(500).json({ error: 'Gagal memuat bingkai.' });
+  }
+});
+
+app.post('/api/frames', upload.single('overlay'), (req, res) => {
+  try {
+    const rawFrame = JSON.parse(req.body.frame || '{}');
+    const frame = saveFrame(rawFrame, req.file || null);
+    res.status(201).json({ frame });
+  } catch (error) {
+    console.error('Frame save error:', error);
+    res.status(400).json({ error: error.message || 'Gagal menyimpan bingkai.' });
+  }
+});
+
+app.delete('/api/frames/:id', (req, res) => {
+  try {
+    const deleted = removeFrame(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Bingkai tidak ditemukan.' });
+    res.status(204).end();
+  } catch (error) {
+    console.error('Frame delete error:', error);
+    res.status(500).json({ error: 'Gagal menghapus bingkai.' });
+  }
+});
+
+app.get('/api/frames/:id/overlay', (req, res) => {
+  const overlayPath = getOverlayPath(req.params.id);
+  if (!overlayPath) return res.status(404).end();
+  res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  res.sendFile(overlayPath);
+});
 
 app.post('/api/remove-bg', upload.single('image'), async (req, res) => {
   try {

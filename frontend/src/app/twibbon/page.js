@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 import { saveTwibbonOverlay } from "@/lib/twibbonOverlayStorage";
 
+import { saveServerFrame } from "@/lib/frameApi";
+
 export default function TwibbonBuilderPage() {
   const router = useRouter();
   const store = useCustomFrameStore();
@@ -221,16 +223,17 @@ export default function TwibbonBuilderPage() {
     // Don't reset mode, let them keep drawing multiple
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSave = async () => {
     if (!sourceFile) return alert("Upload gambar dulu!");
     if (slots.length === 0) return alert("Buat minimal 1 slot foto!");
     
+    setIsSaving(true);
     try {
-      // File asli disimpan di IndexedDB, bukan blob URL sementara.
       const id = `twibbon-${Date.now()}`;
-      await saveTwibbonOverlay(id, sourceFile);
-
-      store.saveFrame({
+      
+      const draftFrame = {
         id,
         name: frameName,
         category: "CUSTOM",
@@ -245,14 +248,17 @@ export default function TwibbonBuilderPage() {
         slotBorderWidth: 0,
         layout: slots,
         stickers: [],
-        overlayStorageKey: id,
-      });
+      };
 
-      alert(`Bingkai "${frameName}" berhasil disimpan!`);
+      const serverFrame = await saveServerFrame(draftFrame, sourceFile);
+      store.upsertFrame(serverFrame);
+
+      alert(`Bingkai "${serverFrame.name}" berhasil disimpan ke server!`);
       router.push("/templates");
     } catch (err) {
       console.error("Gagal menyimpan twibbon:", err);
-      alert("Gagal menyimpan bingkai. Coba gunakan file PNG yang lebih kecil.");
+      alert("Gagal menyimpan bingkai. Coba gunakan file PNG yang lebih kecil. Error: " + err.message);
+      setIsSaving(false);
     }
   };
 
@@ -268,8 +274,8 @@ export default function TwibbonBuilderPage() {
           className="font-archivo text-2xl bg-transparent border-b-4 border-black px-2 py-1 max-w-[260px] text-center focus:outline-none focus:bg-yellow-100"
           placeholder="Nama Bingkai"
         />
-        <Button onClick={handleSave} variant="primary" disabled={!imageUrl || slots.length === 0} className="gap-2">
-          <Save className="w-5 h-5" /> SIMPAN
+        <Button onClick={handleSave} variant="primary" disabled={!imageUrl || slots.length === 0 || isSaving} className="gap-2">
+          <Save className="w-5 h-5" /> {isSaving ? "MENYIMPAN..." : "SIMPAN"}
         </Button>
       </div>
 
