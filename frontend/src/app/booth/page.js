@@ -23,6 +23,7 @@ function BoothPageContent() {
   const streamRef = useRef(null);
 
   const [permissionState, setPermissionState] = useState("checking"); // 'checking' | 'prompting' | 'granted' | 'denied'
+  const [cameraStream, setCameraStream] = useState(null);
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isFlashing, setIsFlashing] = useState(false);
@@ -81,8 +82,9 @@ function BoothPageContent() {
         video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
-      if (videoRef.current) videoRef.current.srcObject = stream;
+      // Simpan ke state agar dipasang setelah elemen <video> selesai dirender.
       streamRef.current = stream;
+      setCameraStream(stream);
       setPermissionState('granted');
       setError("");
     } catch (err) {
@@ -100,11 +102,20 @@ function BoothPageContent() {
     }
   };
 
+  // Pasang stream setelah React benar-benar merender elemen <video>.
+  useEffect(() => {
+    if (!cameraStream || !videoRef.current) return;
+    const video = videoRef.current;
+    video.srcObject = cameraStream;
+    video.play().catch((err) => console.warn("Preview camera tidak bisa diputar:", err));
+  }, [cameraStream, permissionState]);
+
   const stopCamera = () => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
+    setCameraStream(null);
   };
 
   const takePhoto = () => {
