@@ -35,7 +35,7 @@ class SegmenterPipeline {
 }
 
 // Pre-load model on startup (optional, but good for UX so the first request isn't slow)
-SegmenterPipeline.getInstance().catch(console.error);
+// SegmenterPipeline.getInstance().catch(console.error); // DISABLED to prevent OOM crash loop at startup
 
 // --- Lightweight server-side frame database (SQLite) ---
 app.get('/api/frames', (_req, res) => {

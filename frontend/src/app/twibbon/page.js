@@ -250,7 +250,10 @@ export default function UploadBingkaiPage() {
         stickers: [],
       };
 
-      const serverFrame = await saveServerFrame(draftFrame, sourceFile);
+      // Ensure sourceFile is a File or Blob
+      const fileToUpload = sourceFile instanceof File ? sourceFile : new File([sourceFile], "overlay.png", { type: sourceFile.type || "image/png" });
+
+      const serverFrame = await saveServerFrame(draftFrame, fileToUpload);
       store.upsertFrame(serverFrame);
 
       alert(`Bingkai "${serverFrame.name}" berhasil disimpan ke server!`);

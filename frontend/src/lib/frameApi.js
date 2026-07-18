@@ -28,12 +28,27 @@ export async function fetchServerFrames() {
 export async function saveServerFrame(frame, overlayFile = null) {
   const body = new FormData();
   body.append('frame', JSON.stringify(frame));
-  if (overlayFile) body.append('overlay', overlayFile, overlayFile.name || 'overlay.png');
+  if (overlayFile) {
+    body.append('overlay', overlayFile, overlayFile.name || 'overlay.png');
+  }
 
-  const data = await request(FRAME_API, {
+  const response = await fetch(FRAME_API, {
     method: 'POST',
     body,
   });
+
+  if (!response.ok) {
+    let message = 'Terjadi kesalahan pada penyimpanan bingkai.';
+    try {
+      const respBody = await response.json();
+      message = respBody.error || message;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+
+  const data = await response.json();
   return data.frame;
 }
 

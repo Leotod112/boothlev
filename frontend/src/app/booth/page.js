@@ -276,36 +276,47 @@ function BoothPageContent() {
             </div>
 
             {/* Settings panel - ONLY SHOW IF CAMERA GRANTED */}
-            {showSettings && localPhotos.length === 0 && permissionState === 'granted' && (
-              <div className="w-full max-w-lg bg-white brutal-border brutal-shadow-sm p-4 mb-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Settings2 className="w-4 h-4" />
-                  <span className="font-black uppercase text-xs">Pengaturan Foto</span>
+            {localPhotos.length === 0 && permissionState === 'granted' && (
+              <div className="w-full max-w-lg bg-white brutal-border brutal-shadow-sm p-4 mb-4 transition-all">
+                <div 
+                  className="flex items-center justify-between cursor-pointer group" 
+                  onClick={() => setShowSettings(!showSettings)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="w-4 h-4" />
+                    <span className="font-black uppercase text-xs">Pengaturan Foto</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-gray-400 group-hover:text-black">
+                    {showSettings ? "SEMBUNYIKAN ▲" : "TAMPILKAN ▼"}
+                  </span>
                 </div>
-                <div className="flex gap-6 flex-wrap">
-                  <div>
-                    <label className="text-[10px] font-bold uppercase block mb-1">Jumlah Foto</label>
-                    <div className="flex gap-1.5">
-                      {BATCH_OPTIONS.map(v => (
-                        <button key={v} onClick={() => setBatchCount(v)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded brutal-border ${batchCount === v ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}>
-                          {v}
-                        </button>
-                      ))}
+                
+                {showSettings && (
+                  <div className="flex gap-6 flex-wrap mt-4 pt-4 border-t-2 border-dashed border-gray-200">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase block mb-1">Jumlah Foto</label>
+                      <div className="flex gap-1.5">
+                        {BATCH_OPTIONS.map(v => (
+                          <button key={v} onClick={() => setBatchCount(v)}
+                            className={`px-3 py-1.5 text-xs font-bold rounded brutal-border ${batchCount === v ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}>
+                            {v}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase block mb-1"><Clock className="w-3 h-3 inline" /> Timer (detik)</label>
+                      <div className="flex gap-1.5">
+                        {TIMER_OPTIONS.map(v => (
+                          <button key={v} onClick={() => setTimerSec(v)}
+                            className={`px-3 py-1.5 text-xs font-bold rounded brutal-border ${timerSec === v ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}>
+                            {v}s
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <label className="text-[10px] font-bold uppercase block mb-1"><Clock className="w-3 h-3 inline" /> Timer (detik)</label>
-                    <div className="flex gap-1.5">
-                      {TIMER_OPTIONS.map(v => (
-                        <button key={v} onClick={() => setTimerSec(v)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded brutal-border ${timerSec === v ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}>
-                          {v}s
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
