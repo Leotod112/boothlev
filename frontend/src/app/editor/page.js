@@ -10,6 +10,7 @@ import MaskEditorModal from "@/components/MaskEditorModal";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 import PhotoGallery from "@/components/PhotoGallery";
 import MobileEditorBar from "@/components/MobileEditorBar";
+import { loadTwibbonOverlay, revokeTwibbonOverlay } from "@/lib/twibbonOverlayStorage";
 import Cropper from "react-easy-crop";
 import * as htmlToImage from "html-to-image";
 
@@ -113,6 +114,7 @@ function EditorPageContent() {
   const searchParams = useSearchParams();
   const templateId = searchParams.get("template");
   const customFrames = useCustomFrameStore((s) => s.frames);
+  const customFramesReady = useCustomFrameStore((s) => s.hasHydrated);
   const template = [...templates, ...customFrames].find((t) => t.id === templateId);
 
   const globalPhotos = useStore((s) => s.photos);
@@ -129,6 +131,7 @@ function EditorPageContent() {
   const [scaleFactor, setScaleFactor] = useState(0.4);
   const [loadingStatus, setLoadingStatus] = useState(null);
   const [mobileTab, setMobileTab] = useState(null);
+  const [overlayUrl, setOverlayUrl] = useState(null);
 
   const templateRef = useRef(null);
   const containerRef = useRef(null);
@@ -149,14 +152,36 @@ function EditorPageContent() {
     return () => window.removeEventListener("resize", handleResize);
   }, [template]);
 
-  // Auto-fill slots directly from gallery when template is first loaded
+  // Tunggu custom frame selesai dimuat dari localStorage sebelum mencari template.
   useEffect(() => {
+    if (!customFramesReady) return;
     if (!template) { router.push("/templates"); return; }
     const initialPhotos = Array.from({ length: template.slots }).map((_, i) => globalPhotos[i] || null);
     setPhotos(initialPhotos);
     setBgColor(template.frameColor);
     setStickers(template.stickers ? [...template.stickers] : []);
-  }, [template, globalPhotos, router]);
+  }, [template, globalPhotos, router, customFramesReady]);
+
+  // Ambil overlay Twibbon dari IndexedDB agar tidak hilang setelah refresh/pindah halaman.
+  useEffect(() => {
+    let active = true;
+    let createdUrl = null;
+    const loadOverlay = async () => {
+      setOverlayUrl(null);
+      if (!template?.overlayStorageKey) {
+        setOverlayUrl(template?.overlayImage || null); // kompatibel untuk frame lama
+        return;
+      }
+      const url = await loadTwibbonOverlay(template.overlayStorageKey);
+      createdUrl = url;
+      if (active) setOverlayUrl(url);
+    };
+    loadOverlay();
+    return () => {
+      active = false;
+      revokeTwibbonOverlay(createdUrl);
+    };
+  }, [template]);
   const handleUpload = (index, dataUrl) => { const newPhotos = [...photos]; newPhotos[index] = dataUrl; setPhotos(newPhotos); };
   const handleDelete = (index) => { const newPhotos = [...photos]; newPhotos[index] = null; setPhotos(newPhotos); };
   const handleSwap = (indexA, indexB) => { const newPhotos = [...photos]; [newPhotos[indexA], newPhotos[indexB]] = [newPhotos[indexB], newPhotos[indexA]]; setPhotos(newPhotos); };
@@ -294,9 +319,9 @@ function EditorPageContent() {
                 </div>
                 
                 {/* TWIBBON OVERLAY IMAGE */}
-                {template.overlayImage && (
+                {overlayUrl && (
                   <div className="absolute inset-0 w-full h-full pointer-events-none z-20">
-                    <img src={template.overlayImage} alt="Twibbon Overlay" className="w-full h-full object-fill" />
+                    <img src={overlayUrl} alt="Twibbon Overlay" className="w-full h-full object-fill" />
                   </div>
                 )}
                 

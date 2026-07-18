@@ -29,6 +29,8 @@ export const useCustomFrameStore = create(
       frames: [],
       editingIndex: -1,
       editingFrame: null,
+      hasHydrated: false,
+      setHasHydrated: (hasHydrated) => set({ hasHydrated }),
 
       // Load all saved custom frames
       getFrames: () => get().frames,
@@ -174,6 +176,9 @@ export const useCustomFrameStore = create(
     }),
     {
       name: 'syzhaa-custom-frames',
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

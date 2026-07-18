@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, Upload, ScanSearch, MousePointerSquareDashed, Trash2, Save, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
+import { saveTwibbonOverlay } from "@/lib/twibbonOverlayStorage";
 
 export default function TwibbonBuilderPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function TwibbonBuilderPage() {
   const canvasRef = useRef(null);
 
   const [imageUrl, setImageUrl] = useState(null);
+  const [sourceFile, setSourceFile] = useState(null);
   const [imageSize, setImageSize] = useState({ w: 0, h: 0 });
   const [slots, setSlots] = useState([]);
   const [frameName, setFrameName] = useState("Twibbon Baru");
@@ -26,6 +28,7 @@ export default function TwibbonBuilderPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
+    setSourceFile(file);
     
     const img = new Image();
     img.onload = () => {
@@ -218,32 +221,39 @@ export default function TwibbonBuilderPage() {
     // Don't reset mode, let them keep drawing multiple
   };
 
-  const handleSave = () => {
-    if (!imageUrl) return alert("Upload gambar dulu!");
+  const handleSave = async () => {
+    if (!sourceFile) return alert("Upload gambar dulu!");
     if (slots.length === 0) return alert("Buat minimal 1 slot foto!");
     
-    // Validate slot shape choice (if the image has rounded holes, CSS rounded looks better underneath)
-    const finalFrame = {
-      id: `twibbon-${Date.now()}`,
-      name: frameName,
-      category: "CUSTOM",
-      description: "Bingkai Overlay (Twibbon)",
-      width: imageSize.w,
-      height: imageSize.h,
-      slots: slots.length,
-      frameColor: "transparent", 
-      textColor: "#FFFFFF",
-      slotShape: "square",
-      slotBgColor: "#e5e7eb",
-      slotBorderWidth: 0,
-      layout: slots,
-      stickers: [],
-      overlayImage: imageUrl 
-    };
+    try {
+      // File asli disimpan di IndexedDB, bukan blob URL sementara.
+      const id = `twibbon-${Date.now()}`;
+      await saveTwibbonOverlay(id, sourceFile);
 
-    store.saveFrame(finalFrame);
-    alert(`Bingkai "${frameName}" berhasil disimpan!`);
-    router.push("/templates");
+      store.saveFrame({
+        id,
+        name: frameName,
+        category: "CUSTOM",
+        description: "Bingkai Overlay (Twibbon)",
+        width: imageSize.w,
+        height: imageSize.h,
+        slots: slots.length,
+        frameColor: "transparent",
+        textColor: "#FFFFFF",
+        slotShape: "square",
+        slotBgColor: "#e5e7eb",
+        slotBorderWidth: 0,
+        layout: slots,
+        stickers: [],
+        overlayStorageKey: id,
+      });
+
+      alert(`Bingkai "${frameName}" berhasil disimpan!`);
+      router.push("/templates");
+    } catch (err) {
+      console.error("Gagal menyimpan twibbon:", err);
+      alert("Gagal menyimpan bingkai. Coba gunakan file PNG yang lebih kecil.");
+    }
   };
 
   return (
