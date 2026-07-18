@@ -275,8 +275,8 @@ function BoothPageContent() {
               )}
             </div>
 
-            {/* Settings panel */}
-            {showSettings && localPhotos.length === 0 && (
+            {/* Settings panel - ONLY SHOW IF CAMERA GRANTED */}
+            {showSettings && localPhotos.length === 0 && permissionState === 'granted' && (
               <div className="w-full max-w-lg bg-white brutal-border brutal-shadow-sm p-4 mb-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Settings2 className="w-4 h-4" />
@@ -309,17 +309,25 @@ function BoothPageContent() {
               </div>
             )}
 
-              {/* Buttons */}
+            {/* Buttons */}
             <div className="flex gap-3 flex-wrap justify-center w-full">
               {!isBatchRunning ? (
                 <>
                   <div className="flex w-full gap-2 justify-center max-w-lg">
                     {localPhotos.length === 0 ? (
-                      <Button onClick={startBatch} disabled={permissionState !== 'granted'} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg disabled:bg-gray-400">
+                      <Button 
+                        onClick={startBatch} 
+                        disabled={permissionState !== 'granted'} 
+                        className={`flex-1 h-14 text-sm sm:text-lg ${permissionState === 'granted' ? 'bg-accent text-white hover:bg-black' : 'bg-gray-300 text-gray-500 border-gray-400 opacity-50 cursor-not-allowed'}`}
+                      >
                         <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> MULAI {batchCount} FOTO
                       </Button>
                     ) : (
-                      <Button onClick={handleSingleShot} disabled={permissionState !== 'granted'} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg disabled:bg-gray-400">
+                      <Button 
+                        onClick={handleSingleShot} 
+                        disabled={permissionState !== 'granted'} 
+                        className={`flex-1 h-14 text-sm sm:text-lg ${permissionState === 'granted' ? 'bg-accent text-white hover:bg-black' : 'bg-gray-300 text-gray-500 border-gray-400 opacity-50 cursor-not-allowed'}`}
+                      >
                         <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> AMBIL LAGI
                       </Button>
                     )}
@@ -330,7 +338,7 @@ function BoothPageContent() {
                     <Button onClick={() => document.getElementById("mobileCameraUpload2").click()} className="flex-1 bg-green-500 hover:bg-green-600 text-white h-12 text-xs font-bold">
                       <Camera className="mr-2 w-4 h-4" /> KAMERA HP MANUAL
                     </Button>
-                    <Button onClick={() => document.getElementById("fileUpload2").click()} variant="outline" className="flex-1 h-12 text-xs font-bold">
+                    <Button onClick={() => document.getElementById("fileUpload2").click()} variant="outline" className="flex-1 h-12 text-xs font-bold bg-white">
                       <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
                     </Button>
                   </div>
