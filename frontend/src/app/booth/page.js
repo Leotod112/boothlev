@@ -1,44 +1,29 @@
 "use client";
-
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Camera, Check, ArrowRight } from "lucide-react";
+import { Camera, ImagePlus, Check, ArrowRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { templates } from "@/lib/templates";
-import { useCustomFrameStore } from "@/store/useCustomFrameStore";
 import { useStore } from "@/store/useStore";
 
-function BoothPageContent() {
+export default function BoothPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const templateId = searchParams.get("template");
-  const customFrames = useCustomFrameStore((s) => s.frames);
-  const template = [...templates, ...customFrames].find((t) => t.id === templateId);
-
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
 
   const [hasPermission, setHasPermission] = useState(false);
   const [error, setError] = useState("");
-  const [mode, setMode] = useState("CAMERA"); // 'CAMERA' | 'REVIEW'
   const [countdown, setCountdown] = useState(null);
   const [isFlashing, setIsFlashing] = useState(false);
-  
-  // Local state before saving to global store
   const [localPhotos, setLocalPhotos] = useState([]);
-  const addToGallery = useStore((state) => state.addToGallery);
+  const addToGallery = useStore((s) => s.addToGallery);
+  const gallery = useStore((s) => s.photoGallery);
 
   useEffect(() => {
-    if (!template) {
-      router.push("/templates");
-      return;
-    }
-
     startCamera();
     return () => stopCamera();
-  }, [template, router]);
+  }, []);
 
   const startCamera = async () => {
     try {
@@ -46,41 +31,35 @@ function BoothPageContent() {
         video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
+      if (videoRef.current) videoRef.current.srcObject = stream;
       streamRef.current = stream;
       setHasPermission(true);
+      setError("");
     } catch (err) {
-      setError("Gagal mengakses kamera. Pastikan kamu sudah memberikan izin.");
+      setError("Gagal mengakses kamera. Pastikan kamu sudah memberikan izin kamera.");
     }
   };
 
   const stopCamera = () => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
     }
   };
 
   const takePhoto = () => {
     if (!videoRef.current || !canvasRef.current) return;
-    
-    // Flash effect
     setIsFlashing(true);
     setTimeout(() => setIsFlashing(false), 200);
-
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
     const ctx = canvas.getContext("2d");
     ctx.translate(canvas.width, 0);
     ctx.scale(-1, 1);
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
     addToGallery(dataUrl);
     setLocalPhotos((prev) => [...prev, dataUrl]);
   };
@@ -90,161 +69,115 @@ function BoothPageContent() {
     setCountdown(count);
     const interval = setInterval(() => {
       count -= 1;
-      if (count > 0) {
-        setCountdown(count);
-      } else {
-        clearInterval(interval);
-        setCountdown(null);
-        takePhoto();
-      }
+      if (count > 0) setCountdown(count);
+      else { clearInterval(interval); setCountdown(null); takePhoto(); }
     }, 1000);
   };
 
-  const retakeSingle = (index) => {
-    // Remove from both gallery and local display
-    // We just remove from local UI; gallery stays but that's ok
+  const handleUpload = (e) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const r = new FileReader();
+      r.onload = (ev) => { addToGallery(ev.target.result); setLocalPhotos((prev) => [...prev, ev.target.result]); };
+      r.readAsDataURL(file);
+    });
+    e.target.value = "";
+  };
+
+  const deletePhoto = (index) => {
     setLocalPhotos((prev) => prev.filter((_, i) => i !== index));
-    // Can't easily remove from gallery without index there, but we also add later
-    setCountdown(3); // immediately start countdown to retake
-    setTimeout(() => {
-      takePhoto();
-    }, 500);
   };
 
-  const proceedToEditor = () => {
-    stopCamera();
-    router.push(`/editor?template=${templateId}`);
-  };
-
-  const goBackToTemplates = () => {
+  const proceedToTemplates = () => {
     stopCamera();
     router.push("/templates");
   };
 
-  if (!template) return null;
-
   return (
-    <div className="min-h-[100dvh] bg-gray-100 p-4 md:p-8 flex flex-col">
-      <nav className="mb-6 flex justify-between items-center">
-        <Link href="/templates" className="font-archivo text-xl hover:underline decoration-4">
-          ← Kembali
-        </Link>
-        <div className="font-archivo text-xl uppercase tracking-tighter">
-          SYZHAA
-        </div>
-      </nav>
+    <div className="min-h-[100dvh] bg-gray-100 flex flex-col">
+      {/* Top bar */}
+      <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between">
+        <Link href="/" className="font-archivo text-xl hover:underline decoration-4">← Beranda</Link>
+        <div className="font-archivo text-xl uppercase tracking-tighter">SYZHAA</div>
+        <div className="text-sm font-bold text-gray-500">{localPhotos.length} foto</div>
+      </div>
 
       {error ? (
-        <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="flex-1 flex items-center justify-center p-8">
           <div className="bg-red-200 border-4 border-black p-6 shadow-[8px_8px_0_#111111] max-w-md text-center">
-            <h2 className="font-archivo text-2xl mb-4">KAMERA DITOLAK</h2>
+            <h2 className="font-archivo text-2xl mb-4">KAMERA ERROR</h2>
             <p className="font-medium text-red-900 mb-6">{error}</p>
-            <Button onClick={startCamera} className="w-full">COBA LAGI</Button>
-          </div>
-        </div>
-      ) : mode === "CAMERA" ? (
-        <div className="flex-1 flex flex-col items-center max-w-4xl mx-auto w-full">
-          <div className="mb-4 flex items-center justify-between w-full">
-            <div className="bg-primary text-black font-black uppercase px-4 py-2 brutal-border text-sm">
-              Foto {localPhotos.length} (tanpa batas)
-            </div>
-            <div className="bg-white text-black font-black uppercase px-4 py-2 brutal-border text-sm">
-              {template.name}
-            </div>
-          </div>
-
-          <div className="relative w-full aspect-[3/4] md:aspect-video bg-black brutal-border brutal-shadow overflow-hidden mb-8">
-            {/* Camera feed */}
-            <video 
-              ref={videoRef}
-              autoPlay 
-              playsInline 
-              muted 
-              className="absolute inset-0 w-full h-full object-cover scale-x-[-1]"
-            />
-            <canvas ref={canvasRef} className="hidden" />
-
-            {/* Countdown overlay */}
-            {countdown !== null && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
-                <span className="text-white font-archivo text-9xl drop-shadow-md animate-ping">
-                  {countdown}
-                </span>
-              </div>
-            )}
-
-            {/* Flash overlay */}
-            {isFlashing && (
-              <div className="absolute inset-0 bg-white z-20 opacity-100 transition-opacity duration-100"></div>
-            )}
-          </div>
-
-          {!countdown && (
-            <div className="flex flex-col items-center gap-3 w-full max-w-sm">
-              <Button 
-                onClick={handleTakePhoto}
-                className="w-full h-16 text-xl bg-accent text-white hover:bg-black group"
-              >
-                <Camera className="mr-3 w-6 h-6 group-hover:scale-110 transition-transform" />
-                {localPhotos.length === 0 ? "MULAI FOTO" : "AMBIL LAGI"}
+            <div className="flex flex-col gap-3">
+              <Button onClick={startCamera} className="w-full">COBA LAGI</Button>
+              <Button onClick={() => document.getElementById("fileUpload").click()} variant="outline" className="w-full">
+                <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
               </Button>
-              {localPhotos.length > 0 && (
-                <Button 
-                  onClick={proceedToEditor}
-                  className="w-full h-12 bg-primary text-black hover:bg-[#86efac]"
-                >
-                  SELESAI & KE EDITOR ({localPhotos.length} foto)
-                </Button>
-              )}
+              <input id="fileUpload" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
             </div>
-          )}
+          </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full">
-          <h1 className="font-archivo text-4xl uppercase tracking-tighter mb-8 text-center">
-            Review Foto
-          </h1>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {localPhotos.map((src, i) => (
-              <div key={i} className="relative aspect-[3/4] bg-white brutal-border p-2">
-                <div className="absolute top-0 left-0 bg-black text-white px-2 py-1 text-xs font-bold z-10 m-2">
-                  #{i + 1}
+        <div className="flex-1 flex flex-col md:flex-row">
+          {/* Camera area */}
+          <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+            <div className="relative w-full max-w-lg aspect-[3/4] md:aspect-video bg-black brutal-border brutal-shadow overflow-hidden mb-4">
+              <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover scale-x-[-1]" />
+              <canvas ref={canvasRef} className="hidden" />
+              {countdown !== null && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
+                  <span className="text-white font-archivo text-9xl drop-shadow-md animate-ping">{countdown}</span>
                 </div>
-                <img 
-                  src={src} 
-                  alt={`Foto ${i + 1}`} 
-                  className="w-full h-full object-cover border-2 border-black"
-                />
-              </div>
-            ))}
+              )}
+              {isFlashing && <div className="absolute inset-0 bg-white z-20 opacity-100 transition-opacity duration-100" />}
+            </div>
+            <div className="flex gap-3 flex-wrap justify-center">
+              <Button onClick={handleTakePhoto} className="bg-accent text-white hover:bg-black h-14 px-8 text-lg">
+                <Camera className="mr-2 w-5 h-5" /> {localPhotos.length === 0 ? "AMBIL FOTO" : "AMBIL LAGI"}
+              </Button>
+              <Button onClick={() => document.getElementById("fileUpload2").click()} variant="outline" className="h-14 px-6">
+                <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD
+              </Button>
+              <input id="fileUpload2" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+            </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Button 
-              onClick={goBackToTemplates} 
-              className="bg-white text-black hover:bg-gray-200 h-14 md:w-64"
-            >
-              GANTI TEMPLATE
-            </Button>
-            <Button 
-              onClick={proceedToEditor}
-              className="bg-primary text-black hover:bg-[#86efac] h-14 md:w-64"
-            >
-              LANJUT EDITOR
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+          {/* Sidebar - Photo list + proceed */}
+          <div className="w-full md:w-72 bg-white border-t-4 md:border-t-0 md:border-l-4 border-black flex flex-col">
+            <div className="p-3 border-b-4 border-black flex items-center justify-between">
+              <h3 className="font-archivo text-lg uppercase">Foto Kamu</h3>
+              <span className="text-xs font-bold text-gray-500">max 10</span>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+              {localPhotos.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <Camera className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                  <p className="text-xs font-bold uppercase">Belum ada foto</p>
+                </div>
+              )}
+              {localPhotos.map((url, i) => (
+                <div key={i} className="flex items-center gap-2 bg-gray-50 brutal-border rounded p-1.5">
+                  <img src={url} alt={`Foto ${i+1}`} className="w-14 h-14 object-cover rounded border-2 border-black shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-bold block truncate">Foto #{i+1}</span>
+                  </div>
+                  <button onClick={() => deletePhoto(i)} className="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shrink-0 hover:bg-red-600">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 border-t-4 border-black">
+              <Button onClick={proceedToTemplates} disabled={localPhotos.length === 0} className="w-full h-14 bg-primary text-black hover:bg-[#86efac] text-lg">
+                PILIH BINGKAI <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+              <p className="text-[10px] text-gray-500 text-center mt-2 font-bold uppercase">
+                {localPhotos.length === 0 ? "Ambil minimal 1 foto dulu" : `${localPhotos.length} foto siap`}
+              </p>
+            </div>
           </div>
         </div>
       )}
     </div>
-  );
-}
-
-export default function BoothPage() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-100 flex items-center justify-center font-archivo text-2xl uppercase">Loading...</div>}>
-      <BoothPageContent />
-    </Suspense>
   );
 }

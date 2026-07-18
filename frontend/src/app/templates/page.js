@@ -7,17 +7,23 @@ import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
+import { useStore } from "@/store/useStore";
 
 export default function TemplatesPage() {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const customFrames = useCustomFrameStore((s) => s.frames);
   const allTemplates = [...templates, ...customFrames.filter(f => f && f.layout && f.layout.length > 0)];
+  const galleryCount = useStore((s) => s.photoGallery.length);
 
   return (
     <div className="min-h-[100dvh] p-6 md:p-12">
       <nav className="mb-12 flex items-center justify-between">
          <Link href="/" className="font-archivo text-2xl uppercase tracking-tighter hover:underline decoration-4 underline-offset-4">
            ← Kembali
+         </Link>
+         <Link href="/booth" className="flex items-center gap-2 bg-white brutal-border px-3 py-2 font-bold text-xs uppercase hover:bg-primary transition-colors">
+           <Camera className="w-4 h-4" />
+           Ambil Foto {galleryCount > 0 && <span className="bg-black text-white rounded-full px-2 py-0.5 ml-1">{galleryCount}</span>}
          </Link>
       </nav>
 
@@ -166,29 +172,31 @@ export default function TemplatesPage() {
             
             <div className="p-6 flex flex-col gap-4">
               <p className="font-medium text-sm text-gray-700 mb-2">
-                Kamu memilih template <strong>{selectedTemplate.name}</strong>. Mau ambil foto dari mana?
+                Kamu memilih <strong>{selectedTemplate.name}</strong> ({selectedTemplate.slots} slot).
               </p>
+
+              {galleryCount > 0 && (
+                <Link href={`/editor?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
+                  <Button className="w-full h-16 flex items-center justify-start gap-4 text-left bg-primary text-black hover:bg-[#86efac] group">
+                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:scale-110 transition-transform">
+                      <ImageIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="font-archivo text-lg uppercase tracking-tight">Pakai {galleryCount} Foto</div>
+                      <div className="text-xs font-medium opacity-80">Dari galeri yang sudah diambil</div>
+                    </div>
+                  </Button>
+                </Link>
+              )}
               
-              <Link href={`/booth?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
+              <Link href={`/booth`} onClick={() => setSelectedTemplate(null)} className="block w-full">
                 <Button className="w-full h-16 flex items-center justify-start gap-4 text-left group">
                   <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:rotate-12 transition-transform">
                     <Camera className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="font-archivo text-lg uppercase tracking-tight">Gunakan Kamera</div>
-                    <div className="text-xs font-medium opacity-80">Foto langsung gaya photobooth</div>
-                  </div>
-                </Button>
-              </Link>
-
-              <Link href={`/editor?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
-                <Button className="w-full h-16 flex items-center justify-start gap-4 text-left bg-secondary text-black hover:bg-[#a67cff] group">
-                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:-rotate-12 transition-transform">
-                    <ImageIcon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="font-archivo text-lg uppercase tracking-tight">Upload Galeri</div>
-                    <div className="text-xs font-medium opacity-80">Pilih foto yang sudah ada</div>
+                    <div className="font-archivo text-lg uppercase tracking-tight">Ambil Foto Baru</div>
+                    <div className="text-xs font-medium opacity-80">Foto langsung pakai kamera</div>
                   </div>
                 </Button>
               </Link>

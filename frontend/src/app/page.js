@@ -26,15 +26,15 @@ export default function Home() {
             </p>
             
             <div className="flex flex-wrap gap-4">
-              <Link href="/templates">
+              <Link href="/booth">
                 <Button size="lg" variant="primary" className="gap-2">
                   <Camera className="w-5 h-5" />
-                  Mulai Photobooth
+                  Ambil Foto Dulu
                 </Button>
               </Link>
-              <Link href="#fitur">
+              <Link href="/templates">
                 <Button size="lg" variant="outline">
-                  Lihat Fitur
+                  Pilih Bingkai
                 </Button>
               </Link>
             </div>
