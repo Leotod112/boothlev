@@ -304,11 +304,11 @@ function BoothPageContent() {
                 <>
                   <div className="flex w-full gap-2 justify-center max-w-lg">
                     {localPhotos.length === 0 ? (
-                      <Button onClick={startBatch} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg">
+                      <Button onClick={startBatch} disabled={permissionState !== 'granted'} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg disabled:bg-gray-400">
                         <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> MULAI {batchCount} FOTO
                       </Button>
                     ) : (
-                      <Button onClick={handleSingleShot} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg">
+                      <Button onClick={handleSingleShot} disabled={permissionState !== 'granted'} className="bg-accent flex-1 text-white hover:bg-black h-14 text-sm sm:text-lg disabled:bg-gray-400">
                         <Camera className="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5" /> AMBIL LAGI
                       </Button>
                     )}
