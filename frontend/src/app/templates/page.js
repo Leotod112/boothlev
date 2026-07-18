@@ -79,11 +79,11 @@ export default function TemplatesPage() {
                 <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                   <ImagePlus className="w-8 h-8" />
                 </div>
-                <span className="font-archivo text-lg uppercase text-center">Upload Twibbon</span>
+                <span className="font-archivo text-lg uppercase text-center">Upload Bingkai</span>
                 <span className="text-xs font-bold text-gray-500 text-center">Punya file PNG transparan sendiri? Upload aja langsung!</span>
               </div>
             </div>
-            <h2 className="font-archivo text-xl uppercase mb-1">Twibbon Maker</h2>
+            <h2 className="font-archivo text-xl uppercase mb-1">Bingkai Ekstra</h2>
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">File PNG • Auto Detect Slot</p>
             <div className="w-full bg-accent text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
               Upload File PNG
@@ -142,9 +142,9 @@ export default function TemplatesPage() {
                         ))}
                      </div>
 
-                     {/* TWIBBON OVERLAY IMAGE */}
-                     {(t.overlayUrl || t.overlayImage) && (
-                       <img src={t.overlayUrl || t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
+                     {/* OVERLAY IMAGE */}
+                     {t.overlayImage && (
+                       <img src={t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
                      )}
 
                      {/* Decorative Stickers in Preview */}

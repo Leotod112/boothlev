@@ -306,10 +306,10 @@ function EditorPageContent() {
                   ))}
                 </div>
                 
-                {/* TWIBBON OVERLAY IMAGE */}
+                {/* OVERLAY IMAGE */}
                 {overlayUrl && (
                   <div className="absolute inset-0 w-full h-full pointer-events-none z-20">
-                    <img src={overlayUrl} alt="Twibbon Overlay" className="w-full h-full object-fill" />
+                    <img src={overlayUrl} alt="Overlay Bingkai" className="w-full h-full object-fill" />
                   </div>
                 )}
                 

@@ -9,7 +9,7 @@ import { saveTwibbonOverlay } from "@/lib/twibbonOverlayStorage";
 
 import { saveServerFrame } from "@/lib/frameApi";
 
-export default function TwibbonBuilderPage() {
+export default function UploadBingkaiPage() {
   const router = useRouter();
   const store = useCustomFrameStore();
   const fileRef = useRef(null);
@@ -19,7 +19,7 @@ export default function TwibbonBuilderPage() {
   const [sourceFile, setSourceFile] = useState(null);
   const [imageSize, setImageSize] = useState({ w: 0, h: 0 });
   const [slots, setSlots] = useState([]);
-  const [frameName, setFrameName] = useState("Twibbon Baru");
+  const [frameName, setFrameName] = useState("Bingkai Baru");
   
   // Modes: 'idle' | 'drawing' (drag to draw box) | 'magic' (click to auto-fill transparent/black box)
   const [mode, setMode] = useState("idle"); 
@@ -231,13 +231,13 @@ export default function TwibbonBuilderPage() {
     
     setIsSaving(true);
     try {
-      const id = `twibbon-${Date.now()}`;
+      const id = `upload-${Date.now()}`;
       
       const draftFrame = {
         id,
         name: frameName,
         category: "CUSTOM",
-        description: "Bingkai Overlay (Twibbon)",
+        description: "Bingkai Upload Sendiri",
         width: imageSize.w,
         height: imageSize.h,
         slots: slots.length,
@@ -256,7 +256,7 @@ export default function TwibbonBuilderPage() {
       alert(`Bingkai "${serverFrame.name}" berhasil disimpan ke server!`);
       router.push("/templates");
     } catch (err) {
-      console.error("Gagal menyimpan twibbon:", err);
+      console.error("Gagal menyimpan bingkai:", err);
       alert("Gagal menyimpan bingkai. Coba gunakan file PNG yang lebih kecil. Error: " + err.message);
       setIsSaving(false);
     }
