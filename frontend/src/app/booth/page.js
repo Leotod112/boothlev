@@ -60,7 +60,16 @@ function BoothPageContent() {
       setHasPermission(true);
       setError("");
     } catch (err) {
-      setError("Gagal mengakses kamera. Pastikan kamu sudah memberikan izin kamera.");
+      console.error("Camera Error:", err);
+      if (err.name === 'NotAllowedError') {
+        setError("Izin kamera ditolak browser. Cek ikon gembok (🔒) di URL bar dan izinkan akses kamera, lalu refresh.");
+      } else if (err.name === 'NotFoundError') {
+        setError("Tidak ada kamera yang terdeteksi di perangkat ini.");
+      } else if (err.name === 'NotReadableError') {
+        setError("Kamera sedang digunakan oleh aplikasi lain (Zoom, Meet, dll). Tutup dulu aplikasinya.");
+      } else {
+        setError(`Gagal mengakses kamera: ${err.message || err.name}`);
+      }
     }
   };
 
