@@ -7,10 +7,15 @@ import { Button } from "@/components/ui/Button";
 import { fetchServerFrames, deleteServerFrame } from "@/lib/frameApi";
 import { templates as builtInTemplates } from "@/lib/templates";
 
+const ITEMS_PER_PAGE = 5;
+
 export default function AdminPage() {
   const [serverFrames, setServerFrames] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  
+  // State untuk Pagination Server Frames
+  const [currentPage, setCurrentPage] = useState(1);
 
   const loadFrames = async () => {
     setIsLoading(true);
@@ -18,6 +23,7 @@ export default function AdminPage() {
     try {
       const data = await fetchServerFrames();
       setServerFrames(data);
+      setCurrentPage(1); // Reset page saat reload
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,7 +40,13 @@ export default function AdminPage() {
     
     try {
       await deleteServerFrame(id);
-      setServerFrames(prev => prev.filter(f => f.id !== id));
+      setServerFrames(prev => {
+        const newData = prev.filter(f => f.id !== id);
+        // Cek kalau halaman kosong setelah hapus
+        const totalPages = Math.ceil(newData.length / ITEMS_PER_PAGE);
+        if (currentPage > totalPages && totalPages > 0) setCurrentPage(totalPages);
+        return newData;
+      });
       
       // Hapus juga dari localStorage agar browser tidak bingung
       const localDataStr = localStorage.getItem('syzhaa-custom-frames');
@@ -52,6 +64,10 @@ export default function AdminPage() {
       alert("Gagal menghapus bingkai: " + err.message);
     }
   };
+
+  // Logic paginasi
+  const totalPages = Math.ceil(serverFrames.length / ITEMS_PER_PAGE);
+  const currentServerFrames = serverFrames.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-[100dvh] p-6 md:p-12 bg-gray-100">
@@ -83,7 +99,17 @@ export default function AdminPage() {
             <p className="text-gray-500 italic py-4 text-center">Belum ada bingkai yang diupload ke server.</p>
           ) : (
             <div className="flex flex-col gap-3">
-              {serverFrames.map((frame) => (
+              <div className="flex justify-between items-center bg-gray-100 p-2 brutal-border text-sm font-bold mb-2">
+                <span>Total: {serverFrames.length} Bingkai</span>
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 bg-white brutal-border hover:bg-gray-200 disabled:opacity-50">{"<"}</button>
+                    <span>{currentPage} / {totalPages}</span>
+                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-2 py-1 bg-white brutal-border hover:bg-gray-200 disabled:opacity-50">{">"}</button>
+                  </div>
+                )}
+              </div>
+              {currentServerFrames.map((frame) => (
                 <div key={frame.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 brutal-border gap-4">
                   <div className="flex items-center gap-4">
                     {frame.overlayUrl ? (

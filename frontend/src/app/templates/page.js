@@ -18,6 +18,10 @@ export default function TemplatesPage() {
   const allTemplates = [...templates, ...customFrames.filter(f => f && f.layout && f.layout.length > 0)];
   const galleryCount = useStore((s) => s.photoGallery.length);
 
+  // State untuk Pagination Server Frames
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 12; // 12 bingkai per halaman agar pas di grid 4 kolom
+
   useEffect(() => {
     let active = true;
     fetchServerFrames()
@@ -25,6 +29,9 @@ export default function TemplatesPage() {
       .catch((error) => { if (active) setFrameLoadError(error.message); });
     return () => { active = false; };
   }, [setServerFrames]);
+
+  const totalPages = Math.ceil(allTemplates.length / ITEMS_PER_PAGE);
+  const currentTemplates = allTemplates.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-[100dvh] p-6 md:p-12">
@@ -53,44 +60,48 @@ export default function TemplatesPage() {
         )}
         {!frameLoadError && <div className="mb-8" />}
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Tombol Buat Bingkai Baru */}
-          <Link href="/custom-frame" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
-            <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-yellow-200 to-pink-200 flex items-center justify-center p-4 shadow-inner">
-              <div className="flex flex-col items-center gap-3 text-gray-700">
-                <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
-                  <Plus className="w-8 h-8" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Tombol Buat Bingkai Baru - Hanya di halaman 1 */}
+          {currentPage === 1 && (
+            <Link href="/custom-frame" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
+              <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-yellow-200 to-pink-200 flex items-center justify-center p-4 shadow-inner">
+                <div className="flex flex-col items-center gap-3 text-gray-700">
+                  <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
+                    <Plus className="w-8 h-8" />
+                  </div>
+                  <span className="font-archivo text-lg uppercase text-center">Buat Bingkai Baru</span>
+                  <span className="text-xs font-bold text-gray-500 text-center">Kustom ukuran, slot, warna, border. Drag & resize bebas.</span>
                 </div>
-                <span className="font-archivo text-lg uppercase text-center">Buat Bingkai Baru</span>
-                <span className="text-xs font-bold text-gray-500 text-center">Kustom ukuran, slot, warna, border. Drag & resize bebas.</span>
               </div>
-            </div>
-            <h2 className="font-archivo text-xl uppercase mb-1">Custom Frame</h2>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">Buat sendiri • Drag & Resize</p>
-            <div className="w-full bg-black text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
-              Buat Sekarang
-            </div>
-          </Link>
+              <h2 className="font-archivo text-xl uppercase mb-1">Custom Frame</h2>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">Buat sendiri • Drag & Resize</p>
+              <div className="w-full bg-black text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
+                Buat Sekarang
+              </div>
+            </Link>
+          )}
 
-          {/* Tombol Upload Twibbon */}
-          <Link href="/twibbon" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
-            <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center p-4 shadow-inner">
-              <div className="flex flex-col items-center gap-3 text-gray-700">
-                <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <ImagePlus className="w-8 h-8" />
+          {/* Tombol Upload Twibbon - Hanya di halaman 1 */}
+          {currentPage === 1 && (
+            <Link href="/twibbon" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
+              <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center p-4 shadow-inner">
+                <div className="flex flex-col items-center gap-3 text-gray-700">
+                  <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <ImagePlus className="w-8 h-8" />
+                  </div>
+                  <span className="font-archivo text-lg uppercase text-center">Upload Bingkai</span>
+                  <span className="text-xs font-bold text-gray-500 text-center">Punya file PNG transparan sendiri? Upload aja langsung!</span>
                 </div>
-                <span className="font-archivo text-lg uppercase text-center">Upload Bingkai</span>
-                <span className="text-xs font-bold text-gray-500 text-center">Punya file PNG transparan sendiri? Upload aja langsung!</span>
               </div>
-            </div>
-            <h2 className="font-archivo text-xl uppercase mb-1">Bingkai Ekstra</h2>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">File PNG • Auto Detect Slot</p>
-            <div className="w-full bg-accent text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
-              Upload File PNG
-            </div>
-          </Link>
+              <h2 className="font-archivo text-xl uppercase mb-1">Bingkai Ekstra</h2>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">File PNG • Auto Detect Slot</p>
+              <div className="w-full bg-accent text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
+                Upload File PNG
+              </div>
+            </Link>
+          )}
 
-          {allTemplates.map((t, idx) => {
+          {currentTemplates.map((t, idx) => {
             // Colors for Neo-brutalism loop
             const colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-accent'];
             const hoverColor = colors[idx % colors.length];
@@ -194,6 +205,30 @@ export default function TemplatesPage() {
             )
           })}
         </div>
+        
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-8 bg-white brutal-border p-4 max-w-sm mx-auto shadow-sm">
+            <Button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+              disabled={currentPage === 1} 
+              variant="outline"
+              className="px-4 py-2 disabled:opacity-50"
+            >
+              {"← SEBELUMNYA"}
+            </Button>
+            <span className="font-bold font-archivo text-lg">
+              {currentPage} / {totalPages}
+            </span>
+            <Button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+              disabled={currentPage === totalPages} 
+              variant="outline"
+              className="px-4 py-2 disabled:opacity-50"
+            >
+              {"SELANJUTNYA →"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Source Selection Modal */}
