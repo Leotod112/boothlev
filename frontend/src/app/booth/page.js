@@ -1,16 +1,21 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Camera, ImagePlus, Clock, ArrowRight, Trash2, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useStore } from "@/store/useStore";
 
+import { templates } from "@/lib/templates";
+
 const BATCH_OPTIONS = [2, 4, 6, 8, 10];
 const TIMER_OPTIONS = [2, 3, 5, 10];
 
-export default function BoothPage() {
+function BoothPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const templateId = searchParams.get("template");
+  
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -136,14 +141,24 @@ export default function BoothPage() {
 
   const proceedToTemplates = () => {
     stopCamera();
-    router.push("/templates");
+    if (templateId) {
+      router.push(`/editor?template=${templateId}`);
+    } else {
+      router.push("/templates");
+    }
   };
 
   return (
     <div className="min-h-[100dvh] bg-gray-100 flex flex-col">
       {/* Top bar */}
       <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="font-archivo text-xl hover:underline decoration-4">← Beranda</Link>
+        <button onClick={() => {
+          stopCamera();
+          if (templateId) router.push(`/editor?template=${templateId}`);
+          else router.push("/");
+        }} className="font-archivo text-xl hover:underline decoration-4">
+          ← Kembali
+        </button>
         <div className="font-archivo text-xl uppercase tracking-tighter">SYZHAA</div>
         <div className="text-sm font-bold text-gray-500">{localPhotos.length} foto</div>
       </div>
@@ -273,7 +288,7 @@ export default function BoothPage() {
             </div>
             <div className="p-3 border-t-4 border-black">
               <Button onClick={proceedToTemplates} disabled={localPhotos.length === 0} className="w-full h-14 bg-primary text-black hover:bg-[#86efac] text-lg">
-                PILIH BINGKAI <ArrowRight className="ml-2 w-5 h-5" />
+                {templateId ? "KEMBALI KE EDITOR" : "PILIH BINGKAI"} <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <p className="text-[10px] text-gray-500 text-center mt-2 font-bold uppercase">
                 {localPhotos.length === 0 ? "Atur lalu mulai foto" : `${localPhotos.length} foto siap`}
@@ -283,5 +298,13 @@ export default function BoothPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function BoothPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <BoothPageContent />
+    </Suspense>
   );
 }

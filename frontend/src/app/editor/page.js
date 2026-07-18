@@ -149,6 +149,7 @@ function EditorPageContent() {
     return () => window.removeEventListener("resize", handleResize);
   }, [template]);
 
+  // Auto-fill slots directly from gallery when template is first loaded
   useEffect(() => {
     if (!template) { router.push("/templates"); return; }
     const initialPhotos = Array.from({ length: template.slots }).map((_, i) => globalPhotos[i] || null);
@@ -156,7 +157,6 @@ function EditorPageContent() {
     setBgColor(template.frameColor);
     setStickers(template.stickers ? [...template.stickers] : []);
   }, [template, globalPhotos, router]);
-
   const handleUpload = (index, dataUrl) => { const newPhotos = [...photos]; newPhotos[index] = dataUrl; setPhotos(newPhotos); };
   const handleDelete = (index) => { const newPhotos = [...photos]; newPhotos[index] = null; setPhotos(newPhotos); };
   const handleSwap = (indexA, indexB) => { const newPhotos = [...photos]; [newPhotos[indexA], newPhotos[indexB]] = [newPhotos[indexB], newPhotos[indexA]]; setPhotos(newPhotos); };
@@ -260,7 +260,12 @@ function EditorPageContent() {
         <Link href="/templates" className="flex items-center gap-2 font-archivo text-lg hover:underline"><ArrowLeft className="w-5 h-5" /> Kembali</Link>
         <span className="text-xs font-bold text-gray-500 hidden sm:block">{template.name} • {template.slots} slot</span>
         <div className="flex gap-2">
-          <button onClick={() => setShowLeftPanel(v => !v)} className="sm:hidden px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold">Foto</button>
+          <button onClick={() => setShowLeftPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold">
+            {showLeftPanel ? 'Tutup Galeri' : 'Buka Galeri'}
+          </button>
+          <Link href={`/booth?template=${templateId}`} className="px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold flex items-center gap-1">
+            <Camera className="w-3 h-3" /> Ambil Foto Baru
+          </Link>
           <button onClick={handleExport} disabled={isExporting} className="px-4 py-1.5 bg-accent text-white rounded brutal-border text-xs font-bold">{isExporting ? "..." : "Download"}</button>
         </div>
       </div>
