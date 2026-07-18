@@ -524,5 +524,163 @@ templates.push(
       { type: "text", emoji: "🦖", x: 270, y: 1680, size: 90 },
       { type: "text", emoji: "🦖", x: 370, y: 1710, size: 60 }
     ]
+  },
+  // --- TEMA BARU DARI GAMBAR ---
+  {
+    id: "pixenze-leopard",
+    category: "PHOTOSTRIP",
+    name: "Leopard Print",
+    description: "Background leopard 3x2",
+    width: 900, height: 1600, slots: 6,
+    frameColor: "#f5e6d3", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "#3b2a1a",
+    slotBorderWidth: 4,
+    layout: [
+      { x: 100, y: 150, w: 330, h: 280 }, { x: 470, y: 150, w: 330, h: 280 },
+      { x: 100, y: 470, w: 330, h: 280 }, { x: 470, y: 470, w: 330, h: 280 },
+      { x: 100, y: 790, w: 330, h: 280 }, { x: 470, y: 790, w: 330, h: 280 }
+    ],
+    stickers: [
+      { type: "text", emoji: "🐾", x: 20, y: 20, size: 80 },
+      { type: "text", emoji: "🐆", x: 750, y: 1150, size: 100 }
+    ]
+  },
+  {
+    id: "pixenze-scrapbook",
+    category: "PHOTOSTRIP",
+    name: "Vintage Scrapbook",
+    description: "Kraft paper & gingham border",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#d2b48c", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "transparent",
+    slotBorderWidth: 0,
+    layout: [
+      { x: 80, y: 200, w: 440, h: 320 },
+      { x: 80, y: 600, w: 440, h: 320 },
+      { x: 80, y: 1000, w: 440, h: 320 }
+    ],
+    stickers: [
+      { type: "text", emoji: "📜", x: 10, y: 20, size: 120 }, // Torn paper proxy
+      { type: "text", emoji: "📦", x: 480, y: 1400, size: 120 } // Cardboard proxy
+    ]
+  },
+  {
+    id: "pixenze-skygrass",
+    category: "PHOTOSTRIP",
+    name: "Sky & Grass",
+    description: "Langit, rumput, & starbursts",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#87ceeb", textColor: "#ff8c00", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "transparent",
+    slotBorderWidth: 0,
+    layout: [
+      { x: 50, y: 250, w: 500, h: 330 },
+      { x: 50, y: 650, w: 500, h: 330 },
+      { x: 50, y: 1050, w: 500, h: 330 }
+    ],
+    stickers: [
+      { type: "text", emoji: "☁️", x: 20, y: 100, size: 100 },
+      { type: "text", emoji: "💥", x: 450, y: 400, size: 150 }, // Starburst proxy
+      { type: "text", emoji: "💥", x: -30, y: 800, size: 120 }, // Starburst proxy
+      { type: "text", emoji: "🌿", x: 480, y: 900, size: 100 },
+      { type: "text", emoji: "✨", x: 450, y: 1300, size: 80 }
+    ]
+  },
+  {
+    id: "pixenze-retro-tv",
+    category: "PHOTOSTRIP",
+    name: "Retro TV Goldfish",
+    description: "TV jadul & ikan koki",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#ffd700", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "#8b0000", // Red TV casing proxy
+    slotBorderWidth: 20,
+    layout: [
+      { x: 80, y: 200, w: 440, h: 320 },
+      { x: 80, y: 650, w: 440, h: 320 },
+      { x: 80, y: 1100, w: 440, h: 320 }
+    ],
+    stickers: [
+      { type: "text", emoji: "💡", x: 10, y: 100, size: 40 }, // Marquee light proxy
+      { type: "text", emoji: "💡", x: 10, y: 500, size: 40 },
+      { type: "text", emoji: "💡", x: 10, y: 900, size: 40 },
+      { type: "text", emoji: "💡", x: 550, y: 300, size: 40 },
+      { type: "text", emoji: "💡", x: 550, y: 700, size: 40 },
+      { type: "text", emoji: "💡", x: 550, y: 1100, size: 40 },
+      { type: "text", emoji: "🐠", x: 400, y: 150, size: 120 },
+      { type: "text", emoji: "🐠", x: 30, y: 800, size: 100 },
+      { type: "text", emoji: "🐠", x: 420, y: 1350, size: 110 }
+    ]
+  },
+  {
+    id: "pixenze-picnic",
+    category: "PHOTOSTRIP",
+    name: "Picnic Kittens",
+    description: "Piknik, kain kotak, kucing",
+    width: 900, height: 1600, slots: 6,
+    frameColor: "#e6eed6", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "#fdfbd4",
+    slotBorderWidth: 4,
+    layout: [
+      { x: 100, y: 200, w: 330, h: 280 }, { x: 470, y: 200, w: 330, h: 280 },
+      { x: 100, y: 520, w: 330, h: 280 }, { x: 470, y: 520, w: 330, h: 280 },
+      { x: 100, y: 840, w: 330, h: 280 }, { x: 470, y: 840, w: 330, h: 280 }
+    ],
+    stickers: [
+      { type: "text", emoji: "🏁", x: 750, y: 400, size: 150 }, // Checkered pattern proxy
+      { type: "text", emoji: "🏁", x: -20, y: 1100, size: 200 },
+      { type: "text", emoji: "🐈", x: 30, y: 600, size: 120 },
+      { type: "text", emoji: "🐈", x: 650, y: 1000, size: 140 }
+    ]
+  },
+  {
+    id: "pixenze-capybara",
+    category: "PHOTOSTRIP",
+    name: "Cute Capybara",
+    description: "Capybara & Bintang",
+    width: 900, height: 1600, slots: 6,
+    frameColor: "#fffdd0", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "#d2b48c",
+    slotBorderWidth: 15,
+    layout: [
+      { x: 100, y: 250, w: 330, h: 280 }, { x: 470, y: 250, w: 330, h: 280 },
+      { x: 100, y: 570, w: 330, h: 280 }, { x: 470, y: 570, w: 330, h: 280 },
+      { x: 100, y: 890, w: 330, h: 280 }, { x: 470, y: 890, w: 330, h: 280 }
+    ],
+    stickers: [
+      { type: "text", emoji: "🐹", x: 40, y: 380, size: 100 }, // Capybara proxy
+      { type: "text", emoji: "🐹", x: 750, y: 700, size: 110 },
+      { type: "text", emoji: "🐹", x: 50, y: 1050, size: 120 },
+      { type: "text", emoji: "✨", x: 780, y: 250, size: 80 },
+      { type: "text", emoji: "✨", x: 30, y: 800, size: 90 }
+    ]
+  },
+  {
+    id: "pixenze-manu",
+    category: "PHOTOSTRIP",
+    name: "Red Devil Stadium",
+    description: "Tema stadion & klub sepak bola",
+    width: 900, height: 1600, slots: 6,
+    frameColor: "#8b0000", textColor: "#ffffff", slotShape: "rounded",
+    slotBgColor: "#000000",
+    slotBorderColor: "transparent",
+    slotBorderWidth: 0,
+    layout: [
+      { x: 100, y: 250, w: 330, h: 280 }, { x: 470, y: 250, w: 330, h: 280 },
+      { x: 100, y: 570, w: 330, h: 280 }, { x: 470, y: 570, w: 330, h: 280 },
+      { x: 100, y: 890, w: 330, h: 280 }, { x: 470, y: 890, w: 330, h: 280 }
+    ],
+    stickers: [
+      { type: "text", emoji: "🏟️", x: 300, y: 1300, size: 250 }, // Stadium proxy
+      { type: "text", emoji: "⚽", x: 50, y: 50, size: 80 },
+      { type: "text", emoji: "🏆", x: 750, y: 50, size: 90 },
+      { type: "text", emoji: "👹", x: 100, y: 1200, size: 100 } // Red devil proxy
+    ]
   }
 );
