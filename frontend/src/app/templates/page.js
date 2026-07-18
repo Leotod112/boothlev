@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Camera, Image as ImageIcon, X, Plus } from "lucide-react";
+import { Camera, Image as ImageIcon, X, Plus, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
@@ -52,6 +52,24 @@ export default function TemplatesPage() {
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">Buat sendiri • Drag & Resize</p>
             <div className="w-full bg-black text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
               Buat Sekarang
+            </div>
+          </Link>
+
+          {/* Tombol Upload Twibbon */}
+          <Link href="/twibbon" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
+            <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center p-4 shadow-inner">
+              <div className="flex flex-col items-center gap-3 text-gray-700">
+                <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <ImagePlus className="w-8 h-8" />
+                </div>
+                <span className="font-archivo text-lg uppercase text-center">Upload Twibbon</span>
+                <span className="text-xs font-bold text-gray-500 text-center">Punya file PNG transparan sendiri? Upload aja langsung!</span>
+              </div>
+            </div>
+            <h2 className="font-archivo text-xl uppercase mb-1">Twibbon Maker</h2>
+            <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">File PNG • Auto Detect Slot</p>
+            <div className="w-full bg-accent text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
+              Upload File PNG
             </div>
           </Link>
 
@@ -106,6 +124,11 @@ export default function TemplatesPage() {
                           </div>
                         ))}
                      </div>
+
+                     {/* TWIBBON OVERLAY IMAGE */}
+                     {t.overlayImage && (
+                       <img src={t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
+                     )}
 
                      {/* Decorative Stickers in Preview */}
                      {t.stickers && t.stickers.length > 0 && (

@@ -287,6 +287,14 @@ function EditorPageContent() {
                     </div>
                   ))}
                 </div>
+                
+                {/* TWIBBON OVERLAY IMAGE */}
+                {template.overlayImage && (
+                  <div className="absolute inset-0 w-full h-full pointer-events-none z-20">
+                    <img src={template.overlayImage} alt="Twibbon Overlay" className="w-full h-full object-fill" />
+                  </div>
+                )}
+                
                 {stickers.map((st, i) => <DraggableSticker key={i} index={i} sticker={st} scaleFactor={scaleFactor} updateStickerPosition={updateStickerPosition} onUpdateSize={updateStickerSize} onDelete={handleDeleteSticker} />)}
                 {!template.hideDefaultFooter && (
                   <div className="absolute bottom-8 w-full text-center z-10" style={{ color: getContrastColor(bgColor) }}>
