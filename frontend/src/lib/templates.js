@@ -414,5 +414,115 @@ templates.push(
       { x: 486, y: 1050, w: 318, h: 280 }
     ],
     stickers: []
+  },
+  {
+    id: "pixenze-naruto",
+    category: "PHOTOSTRIP",
+    name: "Pixel Ninja",
+    description: "Tema anime retro dengan 3 slot",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#5ab1db", textColor: "#FFFFFF", slotShape: "rounded",
+    slotBgColor: "#050505",
+    slotBorderColor: "#1a2a42",
+    slotBorderWidth: 10,
+    layout: [
+      { x: 50, y: 300, w: 500, h: 330 },
+      { x: 50, y: 700, w: 500, h: 330 },
+      { x: 50, y: 1100, w: 500, h: 330 }
+    ],
+    stickers: [
+      { type: "text", emoji: "PIXENZE", x: 140, y: 100, size: 70 },
+      { type: "text", emoji: "BOOTH", x: 160, y: 180, size: 90 },
+      { type: "text", emoji: "🦊", x: -20, y: 80, size: 140 }, // Tobi mask proxy
+      { type: "text", emoji: "⚔️", x: 480, y: 120, size: 120 }, // Madara proxy
+      { type: "text", emoji: "🌸", x: 420, y: 1450, size: 250 }, // Sakura/Naruto/Sasuke area
+      { type: "text", emoji: "🍥", x: 250, y: 1480, size: 200 },
+      { type: "text", emoji: "🗡️", x: 80, y: 1460, size: 180 },
+      { type: "text", emoji: "🍃", x: -30, y: 600, size: 150 }, // Hinata proxy
+      { type: "text", emoji: "🔥", x: 450, y: 950, size: 140 }  // Lee proxy
+    ]
+  },
+  {
+    id: "pixenze-mario",
+    category: "PHOTOSTRIP",
+    name: "Retro Platformer",
+    description: "Tema game 8-bit klasik",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#ffcf9e", textColor: "#FFFFFF", slotShape: "rounded",
+    slotBgColor: "#050505",
+    slotBorderColor: "transparent",
+    slotBorderWidth: 0,
+    layout: [
+      { x: 50, y: 150, w: 500, h: 330 },
+      { x: 50, y: 550, w: 500, h: 330 },
+      { x: 50, y: 950, w: 500, h: 330 }
+    ],
+    stickers: [
+      { type: "text", emoji: "PIXENZE", x: 140, y: 1550, size: 70 },
+      { type: "text", emoji: "BOOTH", x: 160, y: 1650, size: 90 },
+      { type: "text", emoji: "❤️❤️❤️", x: 400, y: 80, size: 60 },
+      { type: "text", emoji: "⭐", x: -20, y: 850, size: 150 },
+      { type: "text", emoji: "🪴", x: 450, y: 1200, size: 180 }, // Piranha proxy
+      { type: "text", emoji: "🍄", x: 480, y: 1550, size: 120 },
+      { type: "text", emoji: "🪙", x: 20, y: 1600, size: 100 }
+    ]
+  },
+  {
+    id: "pixenze-pvz",
+    category: "PHOTOSTRIP",
+    name: "Zombie Garden",
+    description: "Tema pertahanan taman pixel",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#87ceeb", textColor: "#FFFFFF", slotShape: "rounded",
+    slotBgColor: "#050505",
+    slotBorderColor: "transparent",
+    slotBorderWidth: 0,
+    layout: [
+      { x: 50, y: 300, w: 500, h: 330 },
+      { x: 50, y: 700, w: 500, h: 330 },
+      { x: 50, y: 1100, w: 500, h: 330 }
+    ],
+    stickers: [
+      { type: "text", emoji: "PIXENZE", x: 140, y: 100, size: 70 },
+      { type: "text", emoji: "BOOTH", x: 160, y: 180, size: 90 },
+      { type: "text", emoji: "🧟", x: 0, y: 120, size: 140 }, // Conehead
+      { type: "text", emoji: "🌻", x: 450, y: 120, size: 140 }, // Sunflower
+      { type: "text", emoji: "🍒", x: -20, y: 250, size: 120 }, // Cherry bomb
+      { type: "text", emoji: "🥔", x: 480, y: 250, size: 90 },  // Potato mine
+      { type: "text", emoji: "🪣", x: 460, y: 600, size: 130 }, // Bucket zombie
+      { type: "text", emoji: "🧙‍♂️", x: -10, y: 1050, size: 150 },// Wizard zombie
+      { type: "text", emoji: "🌰", x: 20, y: 1500, size: 140 }, // Wall-nut
+      { type: "text", emoji: "👹", x: 400, y: 1400, size: 220 }  // Gargantuar
+    ]
+  },
+  {
+    id: "pixenze-space",
+    category: "PHOTOSTRIP",
+    name: "Dino Space",
+    description: "Tema luar angkasa dengan T-Rex",
+    width: 600, height: 1800, slots: 3,
+    frameColor: "#1d3a66", textColor: "#FFFFFF", slotShape: "rounded",
+    slotBgColor: "#050505",
+    slotBorderColor: "#FFFFFF",
+    slotBorderWidth: 4,
+    layout: [
+      { x: 50, y: 150, w: 500, h: 330 },
+      { x: 50, y: 550, w: 500, h: 330 },
+      { x: 50, y: 950, w: 500, h: 330 }
+    ],
+    stickers: [
+      { type: "text", emoji: "PIXENZE", x: 140, y: 1450, size: 70 },
+      { type: "text", emoji: "BOOTH", x: 160, y: 1550, size: 90 },
+      { type: "text", emoji: "☁️", x: -30, y: 80, size: 150 },
+      { type: "text", emoji: "🪐", x: 420, y: 100, size: 180 },
+      { type: "text", emoji: "🛸", x: -40, y: 480, size: 160 },
+      { type: "text", emoji: "⚡", x: 450, y: 1250, size: 140 },
+      { type: "text", emoji: "🚀", x: 480, y: 1450, size: 100 },
+      { type: "text", emoji: "🌲", x: -20, y: 1650, size: 120 },
+      { type: "text", emoji: "🌲", x: 500, y: 1650, size: 120 },
+      { type: "text", emoji: "🦖", x: 150, y: 1650, size: 120 },
+      { type: "text", emoji: "🦖", x: 270, y: 1680, size: 90 },
+      { type: "text", emoji: "🦖", x: 370, y: 1710, size: 60 }
+    ]
   }
 );
