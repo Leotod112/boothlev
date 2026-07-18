@@ -35,6 +35,7 @@ export default function CustomFramePage() {
   const [scale, setScale] = useState(0.5);
   const [gridRows, setGridRows] = useState(2);
   const [gridCols, setGridCols] = useState(1);
+  const [bottomMargin, setBottomMargin] = useState(35);
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const dragStart = useRef(null);
@@ -123,9 +124,10 @@ export default function CustomFramePage() {
     const n = rows * cols;
     const gap = 18;
     const m = 35;
+    const bm = bottomMargin;
     const aw = ef.width - m * 2 - gap * (cols - 1);
     const sw = Math.floor(aw / cols);
-    const ah = ef.height - m * 2 - gap * (rows - 1);
+    const ah = ef.height - m - bm - gap * (rows - 1);
     const sh = Math.floor(ah / rows);
     const layout = [];
     for (let i = 0; i < n; i++) {
@@ -282,6 +284,27 @@ export default function CustomFramePage() {
                 <input type="number" value={ef.height} onChange={(e) => update({ height: Math.max(200, +e.target.value) })}
                   className="w-full border-2 border-black p-2 font-bold text-sm rounded" />
               </div>
+            </div>
+          </div>
+
+          {/* Bottom Margin */}
+          <div>
+            <label className="font-black uppercase text-xs mb-2 flex items-center gap-1">
+              Margin Bawah (Polaroid)
+            </label>
+            <div className="flex gap-2 items-center">
+              <input type="range" min="10" max="200" value={bottomMargin}
+                onChange={(e) => setBottomMargin(+e.target.value)}
+                className="flex-1" />
+              <span className="font-bold text-sm w-9">{bottomMargin}px</span>
+            </div>
+            <div className="flex gap-1 mt-1">
+              {[20, 35, 60, 100, 150, 200].map(v => (
+                <button key={v} onClick={() => setBottomMargin(v)}
+                  className={`px-2 py-1 text-[10px] font-bold rounded brutal-border ${bottomMargin === v ? 'bg-black text-white' : 'bg-white'}`}>
+                  {v}
+                </button>
+              ))}
             </div>
           </div>
 
