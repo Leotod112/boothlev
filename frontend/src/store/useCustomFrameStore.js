@@ -90,66 +90,85 @@ export const useCustomFrameStore = create(
         };
       }),
 
-      // Add a new slot
+      // Set grid: completely replaces layout with N slots auto-arranged
+      setGrid: (count) => set((state) => {
+        if (!state.editingFrame) return state;
+        const ef = state.editingFrame;
+        const n = Math.max(1, Math.min(count || 2, 24));
+        const cols = Math.min(4, n);
+        const rows = Math.ceil(n / cols);
+        const gap = 18;
+        const m = 35;
+        const aw = ef.width - m * 2 - gap * (cols - 1);
+        const sw = Math.floor(aw / cols);
+        const ah = ef.height - m * 2 - gap * (rows - 1);
+        const sh = Math.floor(ah / rows);
+        const layout = [];
+        for (let i = 0; i < n; i++) {
+          layout.push({
+            x: m + (i % cols) * (sw + gap),
+            y: m + Math.floor(i / cols) * (sh + gap),
+            w: sw,
+            h: sh,
+          });
+        }
+        return {
+          editingFrame: { ...ef, slots: n, layout },
+        };
+      }),
+
+      // Add a new slot and auto-rearrange all into grid
       addSlot: () => set((state) => {
         if (!state.editingFrame) return state;
         const ef = state.editingFrame;
-        const cols = Math.min(3, ef.layout.length + 1);
-        const rows = Math.ceil((ef.layout.length + 1) / cols);
-        const slotW = Math.floor((ef.width - 100) / cols);
-        const slotH = Math.floor((ef.height - (rows + 1) * 50) / rows);
-        const newSlot = {
-          x: 50 + ((ef.layout.length % cols) * (slotW + 10)),
-          y: 50 + (Math.floor(ef.layout.length / cols) * (slotH + 50)),
-          w: slotW,
-          h: slotH,
-        };
+        const n = ef.layout.length + 1;
+        const cols = Math.min(4, n);
+        const rows = Math.ceil(n / cols);
+        const gap = 18;
+        const m = 35;
+        const aw = ef.width - m * 2 - gap * (cols - 1);
+        const sw = Math.floor(aw / cols);
+        const ah = ef.height - m * 2 - gap * (rows - 1);
+        const sh = Math.floor(ah / rows);
+        const layout = [];
+        for (let i = 0; i < n; i++) {
+          layout.push({
+            x: m + (i % cols) * (sw + gap),
+            y: m + Math.floor(i / cols) * (sh + gap),
+            w: sw,
+            h: sh,
+          });
+        }
         return {
-          editingFrame: {
-            ...ef,
-            slots: ef.slots + 1,
-            layout: [...ef.layout, newSlot],
-          },
+          editingFrame: { ...ef, slots: n, layout },
         };
       }),
 
-      // Delete a slot
+      // Delete a slot and auto-arrange remaining
       deleteSlot: (slotIndex) => set((state) => {
         if (!state.editingFrame || state.editingFrame.layout.length <= 1) return state;
-        const newLayout = state.editingFrame.layout.filter((_, i) => i !== slotIndex);
-        return {
-          editingFrame: {
-            ...state.editingFrame,
-            slots: state.editingFrame.slots - 1,
-            layout: newLayout,
-          },
-        };
-      }),
-
-      // Auto-arrange slots into grid
-      autoArrange: (cols) => set((state) => {
-        if (!state.editingFrame) return state;
         const ef = state.editingFrame;
-        const n = ef.layout.length;
-        const colsVal = Math.min(cols || 2, n);
-        const rows = Math.ceil(n / colsVal);
-        const gapX = 16;
-        const gapY = 16;
-        const marginX = 40;
-        const marginY = 50;
-        const availableW = ef.width - marginX * 2 - gapX * (colsVal - 1);
-        const slotW = Math.floor(availableW / colsVal);
-        const availableH = ef.height - marginY * 2 - gapY * (rows - 1);
-        const slotH = Math.floor(availableH / rows);
-
-        const newLayout = ef.layout.map((_, i) => ({
-          x: marginX + (i % colsVal) * (slotW + gapX),
-          y: marginY + Math.floor(i / colsVal) * (slotH + gapY),
-          w: slotW,
-          h: slotH,
-        }));
+        const remaining = ef.layout.filter((_, i) => i !== slotIndex);
+        const n = remaining.length;
+        const cols = Math.min(4, n);
+        const rows = Math.ceil(n / cols);
+        const gap = 18;
+        const m = 35;
+        const aw = ef.width - m * 2 - gap * (cols - 1);
+        const sw = Math.floor(aw / cols);
+        const ah = ef.height - m * 2 - gap * (rows - 1);
+        const sh = Math.floor(ah / rows);
+        const layout = [];
+        for (let i = 0; i < n; i++) {
+          layout.push({
+            x: m + (i % cols) * (sw + gap),
+            y: m + Math.floor(i / cols) * (sh + gap),
+            w: sw,
+            h: sh,
+          });
+        }
         return {
-          editingFrame: { ...ef, layout: newLayout },
+          editingFrame: { ...ef, slots: n, layout },
         };
       }),
     }),

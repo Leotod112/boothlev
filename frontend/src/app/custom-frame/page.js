@@ -118,36 +118,34 @@ export default function CustomFramePage() {
   };
 
   const addNewSlot = () => {
-    const n = ef.layout.length;
-    const cols = Math.min(3, n + 1);
-    const rows = Math.ceil((n + 1) / cols);
-    const sw = Math.floor((ef.width - (cols + 1) * 30) / cols);
-    const sh = Math.floor((ef.height - (rows + 1) * 40) / rows);
-    const newSlot = {
-      x: 30 + (n % cols) * (sw + 20),
-      y: 40 + Math.floor(n / cols) * (sh + 30),
-      w: sw, h: sh,
-    };
-    setEf(prev => ({ ...prev, slots: prev.slots + 1, layout: [...prev.layout, newSlot] }));
+    const n = ef.layout.length + 1;
+    const cols = Math.min(4, n);
+    const rows = Math.ceil(n / cols);
+    const gap = 18;
+    const m = 35;
+    const sw = Math.floor((ef.width - m * 2 - gap * (cols - 1)) / cols);
+    const sh = Math.floor((ef.height - m * 2 - gap * (rows - 1)) / rows);
+    const layout = [];
+    for (let i = 0; i < n; i++) {
+      layout.push({ x: m + (i % cols) * (sw + gap), y: m + Math.floor(i / cols) * (sh + gap), w: sw, h: sh });
+    }
+    setEf(prev => ({ ...prev, slots: n, layout }));
   };
 
-  const autoGrid = (cols) => {
-    const n = ef.layout.length;
-    if (n === 0) return;
-    const c = Math.min(Math.max(1, cols || 2), n);
-    const r = Math.ceil(n / c);
-    const gap = 16;
+  const setGrid = (count) => {
+    const n = Math.max(1, count);
+    const cols = Math.min(4, n);
+    const rows = Math.ceil(n / cols);
+    const gap = 18;
     const m = 35;
-    const aw = ef.width - m * 2 - gap * (c - 1);
-    const sw = Math.floor(aw / c);
-    const ah = ef.height - m * 2 - gap * (r - 1);
-    const sh = Math.floor(ah / r);
-    const nl = ef.layout.map((_, i) => ({
-      x: m + (i % c) * (sw + gap),
-      y: m + Math.floor(i / c) * (sh + gap),
-      w: sw, h: sh,
-    }));
-    setEf(prev => ({ ...prev, layout: nl }));
+    const sw = Math.floor((ef.width - m * 2 - gap * (cols - 1)) / cols);
+    const sh = Math.floor((ef.height - m * 2 - gap * (rows - 1)) / rows);
+    const layout = [];
+    for (let i = 0; i < n; i++) {
+      layout.push({ x: m + (i % cols) * (sw + gap), y: m + Math.floor(i / cols) * (sh + gap), w: sw, h: sh });
+    }
+    setEf(prev => ({ ...prev, slots: n, layout }));
+    setSelectedSlot(null);
   };
 
   const borderStr = (s) => ef.slotBorderWidth > 0 ? `${ef.slotBorderWidth}px solid ${ef.slotBorderColor}` : 'none';
@@ -357,14 +355,17 @@ export default function CustomFramePage() {
               <Plus className="w-4 h-4" /> Tambah Slot
             </Button>
             <div className="flex gap-2">
-              <Button onClick={() => autoGrid(2)} variant="outline" className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> Grid 2
+              <Button onClick={() => setGrid(2)} variant={ef.layout.length === 2 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
+                <Grid3x3 className="w-3 h-3" /> 2
               </Button>
-              <Button onClick={() => autoGrid(3)} variant="outline" className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> Grid 3
+              <Button onClick={() => setGrid(3)} variant={ef.layout.length === 3 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
+                <Grid3x3 className="w-3 h-3" /> 3
               </Button>
-              <Button onClick={() => autoGrid(4)} variant="outline" className="flex-1 gap-1 text-xs">
-                <Grid3x3 className="w-3 h-3" /> Grid 4
+              <Button onClick={() => setGrid(4)} variant={ef.layout.length === 4 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
+                <Grid3x3 className="w-3 h-3" /> 4
+              </Button>
+              <Button onClick={() => setGrid(6)} variant={ef.layout.length === 6 ? "primary" : "outline"} className="flex-1 gap-1 text-xs">
+                <Grid3x3 className="w-3 h-3" /> 6
               </Button>
             </div>
             <Button onClick={() => {
