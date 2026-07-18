@@ -19,6 +19,7 @@ export default function BoothPage() {
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [isFlashing, setIsFlashing] = useState(false);
+  const gallery = useStore((s) => s.photoGallery);
   const [localPhotos, setLocalPhotos] = useState([]);
   const [batchCount, setBatchCount] = useState(4);
   const [timerSec, setTimerSec] = useState(3);
@@ -26,6 +27,15 @@ export default function BoothPage() {
   const [batchProgress, setBatchProgress] = useState(0);
   const [showSettings, setShowSettings] = useState(true);
   const addToGallery = useStore((s) => s.addToGallery);
+  const removeFromGallery = useStore((s) => s.removeFromGallery);
+
+  // Restore photos from gallery on mount
+  useEffect(() => {
+    if (gallery.length > 0) {
+      setLocalPhotos([...gallery]);
+      setShowSettings(false);
+    }
+  }, []);
 
   useEffect(() => {
     startCamera();
@@ -121,6 +131,7 @@ export default function BoothPage() {
 
   const deletePhoto = (index) => {
     setLocalPhotos((prev) => prev.filter((_, i) => i !== index));
+    removeFromGallery(index);
   };
 
   const proceedToTemplates = () => {
@@ -238,7 +249,7 @@ export default function BoothPage() {
           <div className="w-full md:w-72 bg-white border-t-4 md:border-t-0 md:border-l-4 border-black flex flex-col">
             <div className="p-3 border-b-4 border-black flex items-center justify-between">
               <h3 className="font-archivo text-lg uppercase">Foto Kamu</h3>
-              <span className="text-xs font-bold text-gray-500">{localPhotos.length}/{batchCount}</span>
+              <span className="text-xs font-bold text-gray-500">{localPhotos.length} foto</span>
             </div>
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {localPhotos.length === 0 && (
