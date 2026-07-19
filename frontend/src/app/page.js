@@ -14,26 +14,15 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+      <div className="w-full max-w-md">
         {/* Card 1: Ambil Foto */}
-        <Link href="/booth" className="group bg-white brutal-border brutal-shadow p-8 md:p-12 flex flex-col items-center justify-center hover:-translate-y-2 hover:shadow-[8px_8px_0_#111111] transition-all aspect-square md:aspect-[4/3] text-center">
+        <Link href="/booth" className="group bg-white brutal-border brutal-shadow p-8 md:p-12 flex flex-col items-center justify-center hover:-translate-y-2 hover:shadow-[8px_8px_0_#111111] transition-all aspect-square text-center">
           <div className="w-24 h-24 bg-primary rounded-full brutal-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
             <Camera className="w-12 h-12 text-black" />
           </div>
-          <h2 className="font-archivo text-3xl md:text-4xl uppercase mb-3">Ambil Foto</h2>
-          <p className="text-gray-600 font-medium text-sm md:text-base">
-            Jepret foto langsung pakai kamera perangkat kamu tanpa batas.
-          </p>
-        </Link>
-
-        {/* Card 2: Pilih Bingkai */}
-        <Link href="/templates" className="group bg-white brutal-border brutal-shadow p-8 md:p-12 flex flex-col items-center justify-center hover:-translate-y-2 hover:shadow-[8px_8px_0_#111111] transition-all aspect-square md:aspect-[4/3] text-center">
-          <div className="w-24 h-24 bg-secondary rounded-full brutal-border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-            <LayoutTemplate className="w-12 h-12 text-black" />
-          </div>
-          <h2 className="font-archivo text-3xl md:text-4xl uppercase mb-3">Pilih Bingkai</h2>
-          <p className="text-gray-600 font-medium text-sm md:text-base">
-            Pilih template, buat tata letak, atau upload bingkai kamu sendiri.
+          <h2 className="font-archivo text-4xl uppercase mb-3">Mulai Foto</h2>
+          <p className="text-gray-600 font-medium text-base">
+            Jepret atau upload fotomu tanpa batas, lalu hias dengan stiker lucu!
           </p>
         </Link>
       </div>

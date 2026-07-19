@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Trash2, GripHorizontal, ImagePlus, Plus, X, Palette as PaletteIcon, ChevronLeft, ChevronRight, Camera } from "lucide-react";
+import { ArrowLeft, Trash2, GripHorizontal, ImagePlus, Plus, X, Palette as PaletteIcon, ChevronLeft, ChevronRight, Camera, LayoutTemplate, Image as ImageIcon } from "lucide-react";
 import { templates } from "@/lib/templates";
 import { useStore } from "@/store/useStore";
 import { useCustomFrameStore } from "@/store/useCustomFrameStore";
@@ -13,6 +13,7 @@ import MobileEditorBar from "@/components/MobileEditorBar";
 import { loadTwibbonOverlay, revokeTwibbonOverlay } from "@/lib/twibbonOverlayStorage";
 import Cropper from "react-easy-crop";
 import * as htmlToImage from "html-to-image";
+import { fetchServerFrames } from "@/lib/frameApi";
 
 const getContrastColor = (hex) => {
   if (!hex) return "#111111";
@@ -131,10 +132,28 @@ function SlotEditor({ index, image, shape, onUpload, onDelete, onSwap, isSelecte
 function EditorPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const templateId = searchParams.get("template");
+  const initialTemplateId = searchParams.get("template");
+  
   const customFrames = useCustomFrameStore((s) => s.frames);
+  const setServerFrames = useCustomFrameStore((s) => s.setServerFrames);
   const customFramesReady = useCustomFrameStore((s) => s.hasHydrated);
-  const template = [...templates, ...customFrames].find((t) => t.id === templateId);
+
+  useEffect(() => {
+    let active = true;
+    fetchServerFrames()
+      .then((frames) => { if (active) setServerFrames(frames); })
+      .catch((error) => console.error(error));
+    return () => { active = false; };
+  }, [setServerFrames]);
+
+  const allTemplates = [...templates, ...customFrames.filter(f => f && f.layout && f.layout.length > 0)];
+  const [activeTemplateId, setActiveTemplateId] = useState(initialTemplateId || templates[0].id);
+
+  useEffect(() => {
+    if (initialTemplateId) setActiveTemplateId(initialTemplateId);
+  }, [initialTemplateId]);
+
+  const template = allTemplates.find((t) => t.id === activeTemplateId) || templates[0];
 
   const globalPhotos = useStore((s) => s.photos);
   const replacePhoto = useStore((s) => s.replacePhoto);
@@ -164,8 +183,9 @@ function EditorPageContent() {
   const templateRef = useRef(null);
   const containerRef = useRef(null);
   const customImageInputRef = useRef(null);
-  const [showLeftPanel, setShowLeftPanel] = useState(true);
-  const [showRightPanel, setShowRightPanel] = useState(true);
+  const [showLeftPanel, setShowLeftPanel] = useState(false);
+  const [showRightPanel, setShowRightPanel] = useState(false);
+  const [activeDesktopTab, setActiveDesktopTab] = useState('frame'); // 'frame', 'stickers', 'text', 'color'
   const [manualZoom, setManualZoom] = useState(1);
 
   const [pastPhotos, setPastPhotos] = useState([]);
@@ -339,54 +359,103 @@ function EditorPageContent() {
   const slotRadius = template.slotShape === 'rounded' ? 28 : template.slotShape === 'deco' ? '0px 40px 0px 40px' : 0;
   const slotBorder = template.slotBorderWidth ? `${template.slotBorderWidth}px solid ${template.slotBorderColor || '#111111'}` : 'none';
 
-  // Right panel content (used both in desktop sidebar and mobile overlay)
+  // Right panel content (Tabbed Desktop / Mobile Overlay)
+  const currentTab = mobileTab && mobileTab !== 'photos' ? mobileTab : activeDesktopTab;
+  
   const rightPanelContent = (
-    <div className="h-full flex flex-col overflow-y-auto">
-      {/* Stickers */}
-      <div className="p-3 border-b-4 border-black">
-        <label className="font-black uppercase text-xs flex items-center gap-1 mb-2"><Plus className="w-3 h-3" /> Stiker</label>
-        <div className="grid grid-cols-6 gap-1.5 max-h-36 overflow-y-auto mb-2">
-          {["✨","🔥","🎀","🍒","⭐","🎸","🌈","⚡","🎈","🧸","🌸","👑","💎","🦋","🍄","🍔","😎","👾","💖","💯","🚀","💅","🍿","🎥"].map((e, i) => (
-            <button key={i} onClick={() => handleAddSticker(e)} className="aspect-square rounded brutal-border bg-gray-50 flex items-center justify-center text-lg hover:bg-yellow-200 active:scale-90">{e}</button>
-          ))}
-        </div>
-        <div className="flex gap-1">
-          <input value={customEmoji} onChange={(e) => setCustomEmoji(e.target.value)} placeholder="🍕" className="w-12 text-center border-2 border-black rounded font-bold text-lg" maxLength={2} />
-          <button onClick={() => { handleAddSticker(customEmoji); setCustomEmoji(""); }} className="flex-1 bg-black text-white text-xs font-bold rounded brutal-border">Tambah</button>
-          <button onClick={handleResetStickers} className="px-2 text-xs font-bold text-red-500 hover:underline">Reset</button>
-        </div>
+    <div className="h-full flex flex-col bg-white">
+      {/* Desktop Panel Header */}
+      <div className="hidden md:flex p-4 border-b-4 border-black justify-between items-center bg-gray-50 shrink-0">
+         <h3 className="font-archivo text-lg uppercase tracking-tighter">
+            {currentTab === 'frame' && "Pilih Bingkai"}
+            {currentTab === 'stickers' && "Stiker & Emoji"}
+            {currentTab === 'text' && "Teks Footer"}
+            {currentTab === 'color' && "Warna Latar"}
+         </h3>
+         <button onClick={() => setShowRightPanel(false)} className="hover:bg-gray-200 p-1.5 rounded brutal-border active:scale-95 transition-transform bg-white">
+           <X className="w-5 h-5" />
+         </button>
       </div>
-      {/* Name Input */}
-      <div className="p-3 border-b-4 border-black">
-        <label className="font-black uppercase text-xs mb-2 block">Teks Footer</label>
-        <input 
-          type="text" 
-          value={customName} 
-          onChange={(e) => setCustomName(e.target.value)} 
-          className="w-full border-2 border-black rounded p-2 font-bold text-center text-lg uppercase brutal-shadow-sm focus:outline-none focus:ring-2 focus:ring-black" 
-          placeholder="SYZHAA"
-          maxLength={15}
-        />
+
+      <div className="flex-1 overflow-y-auto p-4 bg-white space-y-6">
+        {/* Bingkai / Templates */}
+        {currentTab === 'frame' && (
+          <div>
+            <div className="grid grid-cols-2 gap-3 pr-1">
+              {allTemplates.map(t => (
+                <button key={t.id} onClick={() => setActiveTemplateId(t.id)} className={`relative border-2 ${activeTemplateId === t.id ? 'border-black shadow-[4px_4px_0_#111111] scale-105 z-10' : 'border-gray-300 hover:border-gray-500'} rounded overflow-hidden aspect-[3/4] flex items-center justify-center bg-gray-100 transition-all`}>
+                  <div style={{ width: '80%', height: '80%', backgroundColor: t.frameColor, aspectRatio: `${t.width}/${t.height}` }} className="relative shadow-sm overflow-hidden flex items-center justify-center">
+                      <div className="absolute inset-0 w-full h-full">
+                        {t.layout.map((s, idx) => (
+                          <div key={idx} className="absolute bg-gray-300" style={{ left: `${(s.x/t.width)*100}%`, top: `${(s.y/t.height)*100}%`, width: `${(s.w/t.width)*100}%`, height: `${(s.h/t.height)*100}%` }} />
+                        ))}
+                      </div>
+                  </div>
+                  {activeTemplateId === t.id && <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-green-500 brutal-border" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Stickers */}
+        {currentTab === 'stickers' && (
+          <div>
+            <div className="grid grid-cols-5 gap-2 mb-4">
+              {["✨","🔥","🎀","🍒","⭐","🎸","🌈","⚡","🎈","🧸","🌸","👑","💎","🦋","🍄","🍔","😎","👾","💖","💯","🚀","💅","🍿","🎥"].map((e, i) => (
+                <button key={i} onClick={() => handleAddSticker(e)} className="aspect-square rounded brutal-border bg-gray-50 flex items-center justify-center text-2xl hover:bg-yellow-200 hover:-translate-y-1 active:scale-90 transition-all">{e}</button>
+              ))}
+            </div>
+            <div className="flex gap-2 mb-4">
+              <input value={customEmoji} onChange={(e) => setCustomEmoji(e.target.value)} placeholder="🍕" className="w-16 text-center border-2 border-black rounded font-bold text-xl" maxLength={2} />
+              <button onClick={() => { handleAddSticker(customEmoji); setCustomEmoji(""); }} className="flex-1 bg-black text-white text-sm font-bold rounded brutal-border hover:bg-gray-800">Tambah Emoji</button>
+            </div>
+            <button onClick={handleResetStickers} className="w-full py-2 bg-red-100 text-red-600 border-2 border-red-500 font-bold rounded hover:bg-red-200 brutal-border">Hapus Semua Stiker</button>
+            
+            <div className="mt-6 pt-6 border-t-2 border-dashed border-gray-200">
+              <label className="font-black uppercase text-xs mb-2 block">Upload Stiker Sendiri (AI)</label>
+              <button onClick={() => customImageInputRef.current?.click()} className="w-full bg-blue-100 border-2 border-blue-500 text-blue-700 font-bold py-3 rounded-lg text-xs flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors brutal-border active:scale-95">
+                <ImagePlus className="w-4 h-4" /> UNGGAH FOTO KE AI
+              </button>
+              <input type="file" accept="image/*" ref={customImageInputRef} onChange={handleCustomStickerUpload} className="hidden" />
+            </div>
+          </div>
+        )}
+
+        {/* Name Input */}
+        {currentTab === 'text' && (
+          <div>
+            <label className="font-bold text-gray-500 text-xs mb-2 block">Teks bagian bawah frame (opsional)</label>
+            <input 
+              type="text" 
+              value={customName} 
+              onChange={(e) => setCustomName(e.target.value)} 
+              className="w-full border-4 border-black rounded-xl p-4 font-black text-center text-2xl uppercase brutal-shadow focus:outline-none focus:translate-y-1 focus:shadow-[2px_2px_0_#111111] transition-all" 
+              placeholder="SYZHAA"
+              maxLength={15}
+            />
+          </div>
+        )}
+
+        {/* Colors */}
+        {currentTab === 'color' && (
+          <div>
+            <div className="grid grid-cols-4 gap-3">
+              {["#111111","#FFFFFF","#F9A8D4","#FCD34D","#86EFAC","#93C5FD","#C4B5FD","#F97316","#80C9ED","#FFF0C7","#e5e7eb","#050505"].map(c => (
+                <button key={c} onClick={() => setBgColor(c)} className={`aspect-square rounded-full brutal-border transition-transform hover:scale-110 active:scale-95 ${bgColor === c ? 'ring-4 ring-black ring-offset-2' : ''}`} style={{ backgroundColor: c }} />
+              ))}
+              <div className="relative aspect-square">
+                <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-full h-full opacity-0 absolute inset-0 cursor-pointer z-10" id="colorPicker" />
+                <div className="absolute inset-0 rounded-full brutal-border bg-[conic-gradient(red,yellow,green,blue,magenta,red)] flex items-center justify-center" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      {/* Colors */}
-      <div className="p-3 border-b-4 border-black">
-        <label className="font-black uppercase text-xs mb-2 flex items-center gap-1"><PaletteIcon className="w-3 h-3" /> Warna Frame</label>
-        <div className="flex flex-wrap gap-1.5">
-          {["#111111","#FFFFFF","#F9A8D4","#FCD34D","#86EFAC","#93C5FD","#C4B5FD","#F97316","#80C9ED","#FFF0C7","#e5e7eb","#050505"].map(c => (
-            <button key={c} onClick={() => setBgColor(c)} className={`w-8 h-8 rounded-full brutal-border transition-transform active:scale-90 ${bgColor === c ? 'ring-4 ring-black ring-offset-2' : ''}`} style={{ backgroundColor: c }} />
-          ))}
-          <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-8 h-8 rounded-full cursor-pointer opacity-0 absolute pointer-events-none" id="colorPicker" />
-          <label htmlFor="colorPicker" className="w-8 h-8 rounded-full brutal-border bg-[conic-gradient(red,yellow,green,blue,magenta,red)] flex items-center justify-center cursor-pointer hover:scale-110 transition-transform" />
-        </div>
-      </div>
-      {/* AI Sticker Upload */}
-      <div className="p-3">
-        <label className="font-black uppercase text-xs mb-2">Upload Stiker AI</label>
-        <button onClick={() => customImageInputRef.current?.click()} className="w-full bg-blue-100 border-2 border-blue-500 text-blue-700 font-bold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors brutal-border active:scale-95">
-          <ImagePlus className="w-4 h-4" /> UNGGAH FOTO KE AI
-        </button>
-        <input type="file" accept="image/*" ref={customImageInputRef} onChange={handleCustomStickerUpload} className="hidden" />
-        <button onClick={handleExport} disabled={isExporting} className="w-full mt-3 bg-accent text-white font-bold py-3 rounded brutal-border hover:bg-black active:scale-95 transition-all text-sm uppercase tracking-widest">
+      
+      {/* Mobile Download Button (Only shows when mobile overlay is active) */}
+      <div className="md:hidden p-4 border-t-4 border-black bg-white">
+        <button onClick={handleExport} disabled={isExporting} className="w-full bg-accent text-white font-bold py-3 rounded brutal-border hover:bg-black active:scale-95 transition-all text-sm uppercase tracking-widest">
           {isExporting ? "RENDER..." : "⬇ Download"}
         </button>
       </div>
@@ -406,7 +475,7 @@ function EditorPageContent() {
       {/* TOP BAR */}
       <div className="bg-white border-b-4 border-black px-4 py-3 flex items-center justify-between z-20">
         <div className="flex gap-2">
-          <Link href="/templates" className="flex items-center gap-2 font-archivo text-lg hover:underline brutal-border px-3 py-1 bg-white hover:bg-gray-100 transition-colors"><ArrowLeft className="w-5 h-5" /> Kembali</Link>
+          <Link href="/" className="flex items-center gap-2 font-archivo text-lg hover:underline brutal-border px-3 py-1 bg-white hover:bg-gray-100 transition-colors"><ArrowLeft className="w-5 h-5" /> Kembali</Link>
           <button onClick={handleZoomOut} className="hidden sm:flex w-8 h-8 bg-white border-2 border-black items-center justify-center brutal-shadow hover:bg-gray-100 font-bold active:translate-y-px" title="Zoom Out (Ctrl -)">-</button>
           <button onClick={handleZoomIn} className="hidden sm:flex w-8 h-8 bg-white border-2 border-black items-center justify-center brutal-shadow hover:bg-gray-100 font-bold active:translate-y-px" title="Zoom In (Ctrl +)">+</button>
         </div>
@@ -414,41 +483,14 @@ function EditorPageContent() {
         <span className="text-xs font-bold text-gray-500 hidden lg:block">{template.name} • {template.slots} slot</span>
         
         <div className="flex gap-2">
-          <button onClick={() => setShowLeftPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold transition-colors hover:bg-gray-300">
-            {showLeftPanel ? 'Tutup Galeri' : 'Buka Galeri'}
+          <button onClick={handleExport} disabled={isExporting} className="hidden md:flex px-4 py-1.5 bg-[#86efac] text-black rounded brutal-border text-sm font-black transition-transform hover:-translate-y-1 active:translate-y-0">
+            {isExporting ? "RENDER..." : "⬇ SIMPAN"}
           </button>
-          <button onClick={() => setShowRightPanel(v => !v)} className="hidden md:block px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold transition-colors hover:bg-gray-300">
-            {showRightPanel ? 'Tutup Alat' : 'Buka Alat'}
-          </button>
-          <Link href={`/booth?template=${templateId}`} className="hidden sm:flex px-3 py-1.5 bg-gray-200 rounded brutal-border text-xs font-bold items-center gap-1 hover:bg-gray-300">
-            <Camera className="w-3 h-3" /> Foto Baru
-          </Link>
-          <button onClick={handleExport} disabled={isExporting} className="hidden sm:block px-4 py-1.5 bg-accent text-white rounded brutal-border text-xs font-bold hover:bg-black">{isExporting ? "..." : "Download"}</button>
         </div>
       </div>
 
       {/* MAIN */}
       <div className="flex-1 flex relative overflow-hidden" style={{ height: 'calc(100dvh - 60px)' }}>
-        {/* LEFT PANEL - Photo Gallery (Desktop) */}
-        <div 
-          className={`hidden md:flex transition-all duration-300 ease-in-out border-r-4 border-black bg-white shrink-0 overflow-hidden relative ${showLeftPanel ? 'w-56 lg:w-64' : 'w-10'}`}
-        >
-          {/* Collapse Toggle Button */}
-          <button 
-            onClick={() => setShowLeftPanel(v => !v)}
-            className="absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-16 bg-white brutal-border rounded-l-full flex items-center justify-start pl-1 z-30 hover:bg-gray-100 hidden" 
-          />
-          {showLeftPanel ? (
-            <div className="w-56 lg:w-64 flex-1 h-full overflow-hidden">
-              <PhotoGallery onSelectPhoto={handleAutoFillPhoto} />
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center py-4 border-r-4 border-black cursor-pointer bg-gray-100 hover:bg-gray-200" onClick={() => setShowLeftPanel(true)}>
-              <ChevronRight className="w-5 h-5 text-gray-500 mb-2" />
-              <span className="font-archivo text-xs uppercase text-gray-500" style={{ writingMode: "vertical-rl" }}>Galeri Foto</span>
-            </div>
-          )}
-        </div>
 
         {/* CENTER - Canvas */}
         <div ref={containerRef} className="flex-1 flex items-center justify-center p-4 bg-[url('/checkers.svg')] bg-repeat relative overflow-hidden md:pb-4 pb-20" onClick={() => setSelectedSlotIndex(null)}>
@@ -532,22 +574,61 @@ function EditorPageContent() {
               </div>
             </div>
           </div>
+
+          {/* FIGMA STYLE BOTTOM NAV BAR (DESKTOP) */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 hidden md:flex items-center gap-1 bg-white border-4 border-black p-1.5 rounded-full brutal-shadow-lg shadow-[8px_8px_0_#111111]">
+            <button 
+              onClick={() => { setShowLeftPanel(!showLeftPanel); setShowRightPanel(false); setActiveDesktopTab(null); }} 
+              className={`flex items-center gap-2 px-5 py-3 rounded-full font-black uppercase text-xs transition-colors ${showLeftPanel ? 'bg-black text-white' : 'hover:bg-gray-200 text-black'}`}
+            >
+              <ImageIcon className="w-5 h-5" /> Galeri
+            </button>
+            
+            <div className="w-1 h-8 bg-gray-200 rounded-full mx-1" />
+            
+            <button 
+              onClick={() => { setActiveDesktopTab('frame'); setShowRightPanel(true); setShowLeftPanel(false); }} 
+              className={`flex items-center gap-2 px-5 py-3 rounded-full font-black uppercase text-xs transition-colors ${activeDesktopTab === 'frame' && showRightPanel ? 'bg-accent text-white' : 'hover:bg-gray-200 text-black'}`}
+            >
+              <LayoutTemplate className="w-5 h-5" /> Bingkai
+            </button>
+            <button 
+              onClick={() => { setActiveDesktopTab('stickers'); setShowRightPanel(true); setShowLeftPanel(false); }} 
+              className={`flex items-center gap-2 px-5 py-3 rounded-full font-black uppercase text-xs transition-colors ${activeDesktopTab === 'stickers' && showRightPanel ? 'bg-accent text-white' : 'hover:bg-gray-200 text-black'}`}
+            >
+              <Plus className="w-5 h-5" /> Stiker
+            </button>
+            <button 
+              onClick={() => { setActiveDesktopTab('text'); setShowRightPanel(true); setShowLeftPanel(false); }} 
+              className={`flex items-center gap-2 px-5 py-3 rounded-full font-black uppercase text-xs transition-colors ${activeDesktopTab === 'text' && showRightPanel ? 'bg-accent text-white' : 'hover:bg-gray-200 text-black'}`}
+            >
+              <span className="font-archivo text-xl leading-none">T</span> Teks
+            </button>
+            <button 
+              onClick={() => { setActiveDesktopTab('color'); setShowRightPanel(true); setShowLeftPanel(false); }} 
+              className={`flex items-center gap-2 px-5 py-3 rounded-full font-black uppercase text-xs transition-colors ${activeDesktopTab === 'color' && showRightPanel ? 'bg-accent text-white' : 'hover:bg-gray-200 text-black'}`}
+            >
+              <PaletteIcon className="w-5 h-5" /> Warna
+            </button>
+          </div>
         </div>
 
-        {/* RIGHT PANEL - Controls (Desktop) */}
+        {/* LEFT PANEL - Photo Gallery (Desktop Overlay) */}
         <div 
-          className={`hidden md:flex transition-all duration-300 ease-in-out border-l-4 border-black bg-white shrink-0 overflow-hidden relative ${showRightPanel ? 'w-56 lg:w-72' : 'w-10'}`}
+          className={`absolute top-0 left-0 bottom-0 z-30 hidden md:flex transition-all duration-300 ease-in-out bg-white shadow-2xl overflow-hidden ${showLeftPanel ? 'w-56 lg:w-64 border-r-4 border-black' : 'w-0 border-r-0'}`}
         >
-          {showRightPanel ? (
-            <div className="w-56 lg:w-72 flex-1 h-full overflow-hidden">
-              {rightPanelContent}
-            </div>
-          ) : (
-            <div className="flex-1 flex flex-col items-center py-4 cursor-pointer bg-gray-100 hover:bg-gray-200" onClick={() => setShowRightPanel(true)}>
-              <ChevronLeft className="w-5 h-5 text-gray-500 mb-2" />
-              <span className="font-archivo text-xs uppercase text-gray-500" style={{ writingMode: "vertical-rl" }}>Alat Edit</span>
-            </div>
-          )}
+          <div className="w-56 lg:w-64 flex-1 h-full overflow-hidden">
+            <PhotoGallery onSelectPhoto={handleAutoFillPhoto} />
+          </div>
+        </div>
+
+        {/* RIGHT PANEL - Tools (Desktop Overlay) */}
+        <div 
+          className={`absolute top-0 right-0 bottom-0 z-30 hidden md:flex flex-col transition-all duration-300 ease-in-out bg-white shadow-2xl overflow-hidden ${showRightPanel ? 'w-64 lg:w-72 border-l-4 border-black' : 'w-0 border-l-0'}`}
+        >
+          <div className="w-64 lg:w-72 flex-1 h-full overflow-hidden">
+            {rightPanelContent}
+          </div>
         </div>
 
         {/* MOBILE OVERLAYS */}

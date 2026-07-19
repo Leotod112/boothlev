@@ -172,16 +172,33 @@ function BoothPageContent() {
     runCountdown(timerSec, () => takePhoto());
   };
 
-  const handleUpload = (e) => {
-    const files = e.target.files;
-    if (!files) return;
+  const processFiles = (files) => {
+    if (!files || files.length === 0) return;
     Array.from(files).forEach((file) => {
+      if (!file.type.startsWith('image/')) return;
       const r = new FileReader();
-      r.onload = (ev) => { addToGallery(ev.target.result); setLocalPhotos((prev) => [...prev, ev.target.result]); };
+      r.onload = (ev) => { 
+        addToGallery(ev.target.result); 
+        setLocalPhotos((prev) => [...prev, ev.target.result]); 
+      };
       r.readAsDataURL(file);
     });
+  };
+
+  const handleUpload = (e) => {
+    processFiles(e.target.files);
     e.target.value = "";
   };
+
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+        processFiles(e.clipboardData.files);
+      }
+    };
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, []);
 
   const deletePhoto = (index) => {
     setLocalPhotos((prev) => prev.filter((_, i) => i !== index));
@@ -190,21 +207,25 @@ function BoothPageContent() {
 
   const proceedToTemplates = () => {
     stopCamera();
-    if (templateId) {
-      router.push(`/editor?template=${templateId}`);
-    } else {
-      router.push("/templates");
-    }
+    router.push("/editor");
   };
 
   return (
-    <div className="min-h-[100dvh] bg-gray-100 flex flex-col">
+    <div 
+      className="h-full bg-gray-100 flex flex-col overflow-hidden"
+      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+      onDrop={(e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files) {
+          processFiles(e.dataTransfer.files);
+        }
+      }}
+    >
       {/* Top bar */}
       <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between">
         <button onClick={() => {
           stopCamera();
-          if (templateId) router.push(`/templates`);
-          else router.push("/");
+          router.push("/");
         }} className="font-archivo text-xl hover:underline decoration-4">
           ← Kembali
         </button>
@@ -235,49 +256,49 @@ function BoothPageContent() {
             </div>
           </div>
         </div>
-      ) : permissionState === 'denied' || error ? (
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="bg-red-200 border-4 border-black p-6 shadow-[8px_8px_0_#111111] max-w-md text-center">
-            <h2 className="font-archivo text-2xl mb-4">KAMERA ERROR</h2>
-            <p className="font-medium text-red-900 mb-6">{error}</p>
-            <div className="flex flex-col gap-3">
-              <Button onClick={startCamera} className="w-full">COBA LAGI</Button>
-              <Button onClick={() => document.getElementById("fileUpload").click()} variant="outline" className="w-full">
-                <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
-              </Button>
-              <Button onClick={() => document.getElementById("mobileCameraUpload").click()} className="w-full bg-green-500 hover:bg-green-600 text-white">
-                <Camera className="mr-2 w-4 h-4" /> PAKAI KAMERA HP (HTML5)
-              </Button>
-              <input id="fileUpload" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
-              <input id="mobileCameraUpload" type="file" accept="image/*" capture="user" onChange={handleUpload} className="hidden" />
-            </div>
-          </div>
-        </div>
       ) : (
-        <div className="flex-1 flex flex-col md:flex-row">
+        <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden min-h-0">
           {/* Camera area */}
-          <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
-            <div className="relative w-full max-w-lg aspect-[3/4] md:aspect-video bg-black brutal-border brutal-shadow overflow-hidden mb-4">
-              <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover scale-x-[-1]" />
-              <canvas ref={canvasRef} className="hidden" />
-              {countdown !== null && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
-                  <span className="text-white font-archivo text-9xl drop-shadow-md animate-ping">{countdown}</span>
+          <div className="flex-1 flex flex-col items-center justify-start md:justify-center p-4 md:p-6 overflow-y-auto min-h-0 w-full">
+            {permissionState === 'denied' || error ? (
+              <div className="bg-red-200 border-4 border-black p-6 shadow-[8px_8px_0_#111111] max-w-md text-center">
+                <h2 className="font-archivo text-2xl mb-4">KAMERA ERROR</h2>
+                <p className="font-medium text-red-900 mb-6">{error}</p>
+                <div className="flex flex-col gap-3">
+                  <Button onClick={startCamera} className="w-full">COBA LAGI</Button>
+                  <Button onClick={() => document.getElementById("fileUpload").click()} variant="outline" className="w-full">
+                    <ImagePlus className="mr-2 w-4 h-4" /> UPLOAD FOTO
+                  </Button>
+                  <Button onClick={() => document.getElementById("mobileCameraUpload").click()} className="w-full bg-green-500 hover:bg-green-600 text-white">
+                    <Camera className="mr-2 w-4 h-4" /> PAKAI KAMERA HP (HTML5)
+                  </Button>
+                  <input id="fileUpload" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+                  <input id="mobileCameraUpload" type="file" accept="image/*" capture="user" onChange={handleUpload} className="hidden" />
                 </div>
-              )}
-              {isFlashing && <div className="absolute inset-0 bg-white z-20 opacity-100 transition-opacity duration-100" />}
+              </div>
+            ) : (
+              <>
+                <div className="relative w-full max-w-2xl aspect-[3/4] sm:aspect-video bg-black brutal-border brutal-shadow overflow-hidden mb-4 shrink-0">
+                  <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover scale-x-[-1]" />
+                  <canvas ref={canvasRef} className="hidden" />
+                  {countdown !== null && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
+                      <span className="text-white font-archivo text-9xl drop-shadow-md animate-ping">{countdown}</span>
+                    </div>
+                  )}
+                  {isFlashing && <div className="absolute inset-0 bg-white z-20 opacity-100 transition-opacity duration-100" />}
 
-              {/* Batch progress overlay */}
-              {isBatchRunning && countdown === null && (
-                <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1.5 rounded brutal-border text-xs font-bold z-10">
-                  Memproses foto {batchProgress}/{batchCount}...
+                  {/* Batch progress overlay */}
+                  {isBatchRunning && countdown === null && (
+                    <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1.5 rounded brutal-border text-xs font-bold z-10">
+                      Memproses foto {batchProgress}/{batchCount}...
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {/* Settings panel - ONLY SHOW IF CAMERA GRANTED */}
-            {localPhotos.length === 0 && permissionState === 'granted' && (
-              <div className="w-full max-w-lg bg-white brutal-border brutal-shadow-sm p-4 mb-4 transition-all">
+              {/* Settings panel - ONLY SHOW IF CAMERA GRANTED */}
+              {localPhotos.length === 0 && permissionState === 'granted' && (
+                <div className="w-full max-w-lg bg-white brutal-border brutal-shadow-sm p-4 mb-4 transition-all shrink-0">
                 <div 
                   className="flex items-center justify-between cursor-pointer group" 
                   onClick={() => setShowSettings(!showSettings)}
@@ -363,21 +384,17 @@ function BoothPageContent() {
               <input id="fileUpload2" type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
               <input id="mobileCameraUpload2" type="file" accept="image/*" capture="user" onChange={handleUpload} className="hidden" />
             </div>
-          </div>
+          </>
+        )}
+      </div>
 
           {/* Sidebar - Photo list + proceed */}
-          <div className="w-full md:w-72 bg-white border-t-4 md:border-t-0 md:border-l-4 border-black flex flex-col">
-            <div className="p-3 border-b-4 border-black flex items-center justify-between">
+          <div className="w-full md:w-72 bg-white border-t-4 md:border-t-0 md:border-l-4 border-black flex flex-col shrink-0 h-full overflow-hidden">
+            <div className="p-3 border-b-4 border-black flex items-center justify-between shrink-0">
               <h3 className="font-archivo text-lg uppercase">Foto Kamu</h3>
               <span className="text-xs font-bold text-gray-500">{localPhotos.length} foto</span>
             </div>
             
-            {/* Show which template is selected, if any */}
-            {selectedTemplate && (
-              <div className="bg-yellow-100 p-2 text-xs font-bold uppercase text-center brutal-border-b">
-                Mode: {selectedTemplate.name}
-              </div>
-            )}
             <div className="flex-1 overflow-y-auto p-2 space-y-2">
               {localPhotos.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
@@ -398,9 +415,9 @@ function BoothPageContent() {
                 </div>
               ))}
             </div>
-            <div className="p-3 border-t-4 border-black">
+            <div className="p-3 border-t-4 border-black shrink-0">
               <Button onClick={proceedToTemplates} disabled={localPhotos.length === 0} className="w-full h-14 bg-primary text-black hover:bg-[#86efac] text-lg">
-                {templateId ? "SELESAI" : "PILIH BINGKAI"} <ArrowRight className="ml-2 w-5 h-5" />
+                SELESAI <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
               <p className="text-[10px] text-gray-500 text-center mt-2 font-bold uppercase">
                 {localPhotos.length === 0 ? "Atur lalu mulai foto" : `${localPhotos.length} foto siap`}
