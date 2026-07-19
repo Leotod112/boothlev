@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Camera, Image as ImageIcon, X, Plus, ImagePlus } from "lucide-react";
+import { Camera, Image as ImageIcon, X, Plus, ImagePlus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { templates } from "@/lib/templates";
 import PixenzeFrameDecor from "@/components/PixenzeFrameDecor";
@@ -61,25 +61,7 @@ export default function TemplatesPage() {
         {!frameLoadError && <div className="mb-8" />}
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Tombol Buat Bingkai Baru - Hanya di halaman 1 */}
-          {currentPage === 1 && (
-            <Link href="/custom-frame" className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
-              <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gradient-to-br from-yellow-200 to-pink-200 flex items-center justify-center p-4 shadow-inner">
-                <div className="flex flex-col items-center gap-3 text-gray-700">
-                  <div className="w-16 h-16 bg-white brutal-border rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
-                    <Plus className="w-8 h-8" />
-                  </div>
-                  <span className="font-archivo text-lg uppercase text-center">Buat Bingkai Baru</span>
-                  <span className="text-xs font-bold text-gray-500 text-center">Kustom ukuran, slot, warna, border. Drag & resize bebas.</span>
-                </div>
-              </div>
-              <h2 className="font-archivo text-xl uppercase mb-1">Custom Frame</h2>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-5 flex-1">Buat sendiri • Drag & Resize</p>
-              <div className="w-full bg-black text-white text-center py-3 font-bold uppercase tracking-widest text-sm rounded brutal-border group-hover:-translate-y-1 transition-transform">
-                Buat Sekarang
-              </div>
-            </Link>
-          )}
+          {/* Tombol Buat Bingkai Baru - Dihapus sesuai permintaan */}
 
           {/* Tombol Upload Twibbon - Hanya di halaman 1 */}
           {currentPage === 1 && (
@@ -109,6 +91,21 @@ export default function TemplatesPage() {
             return (
               <div key={t.id} className="bg-white brutal-border brutal-shadow p-5 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0_#111111] transition-all flex flex-col group relative">
                 
+                {t.category === 'CUSTOM' && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Yakin ingin menghapus bingkai kustom ini?')) {
+                        useCustomFrameStore.getState().deleteFrame(t.id);
+                      }
+                    }}
+                    className="absolute top-2 right-2 z-50 bg-white border-2 border-black p-1.5 rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-colors brutal-shadow-sm opacity-0 group-hover:opacity-100"
+                    title="Hapus Bingkai"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+
                 {/* Visual Layout Container (Uniform Card Size) */}
                 <div className="aspect-[3/4] brutal-border w-full mb-5 relative overflow-hidden bg-gray-200 flex items-center justify-center p-4 shadow-inner">
                   
@@ -154,8 +151,8 @@ export default function TemplatesPage() {
                      </div>
 
                      {/* OVERLAY IMAGE */}
-                     {t.overlayImage && (
-                       <img src={t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
+                     {(t.overlayUrl || t.overlayImage) && (
+                       <img src={t.overlayUrl || t.overlayImage} alt="" className="absolute inset-0 w-full h-full object-fill pointer-events-none z-20" />
                      )}
 
                      {/* Decorative Stickers in Preview */}
@@ -207,23 +204,23 @@ export default function TemplatesPage() {
         </div>
         
         {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-8 bg-white brutal-border p-4 max-w-sm mx-auto shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 bg-white brutal-border p-4 max-w-lg mx-auto shadow-sm">
             <Button 
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
               disabled={currentPage === 1} 
               variant="outline"
-              className="px-4 py-2 disabled:opacity-50"
+              className="px-4 py-3 disabled:opacity-50 w-full sm:w-auto whitespace-nowrap"
             >
               {"← SEBELUMNYA"}
             </Button>
-            <span className="font-bold font-archivo text-lg">
+            <span className="font-bold font-archivo text-xl whitespace-nowrap px-2">
               {currentPage} / {totalPages}
             </span>
             <Button 
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
               disabled={currentPage === totalPages} 
               variant="outline"
-              className="px-4 py-2 disabled:opacity-50"
+              className="px-4 py-3 disabled:opacity-50 w-full sm:w-auto whitespace-nowrap"
             >
               {"SELANJUTNYA →"}
             </Button>
@@ -250,19 +247,17 @@ export default function TemplatesPage() {
                 Kamu memilih <strong>{selectedTemplate.name}</strong> ({selectedTemplate.slots} slot).
               </p>
 
-              {galleryCount > 0 && (
-                <Link href={`/editor?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
-                  <Button className="w-full h-16 flex items-center justify-start gap-4 text-left bg-primary text-black hover:bg-[#86efac] group">
-                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:scale-110 transition-transform">
-                      <ImageIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="font-archivo text-lg uppercase tracking-tight">Pakai {galleryCount} Foto</div>
-                      <div className="text-xs font-medium opacity-80">Dari galeri yang sudah diambil</div>
-                    </div>
-                  </Button>
-                </Link>
-              )}
+              <Link href={`/editor?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
+                <Button className="w-full h-16 flex items-center justify-start gap-4 text-left bg-primary text-black hover:bg-[#86efac] group">
+                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center brutal-border group-hover:scale-110 transition-transform">
+                    <ImageIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-archivo text-lg uppercase tracking-tight">Unggah / Pakai Galeri</div>
+                    <div className="text-xs font-medium opacity-80">{galleryCount > 0 ? `Ada ${galleryCount} foto di galeri saat ini` : 'Upload foto langsung dari perangkatmu'}</div>
+                  </div>
+                </Button>
+              </Link>
               
               <Link href={`/booth?template=${selectedTemplate.id}`} onClick={() => setSelectedTemplate(null)} className="block w-full">
                 <Button className="w-full h-16 flex items-center justify-start gap-4 text-left group">

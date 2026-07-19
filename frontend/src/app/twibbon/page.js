@@ -25,10 +25,56 @@ export default function UploadBingkaiPage() {
   const [mode, setMode] = useState("idle"); 
   const [dragStart, setDragStart] = useState(null);
   const [currentBox, setCurrentBox] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // History & Shortcuts
+  const [past, setPast] = useState([]);
+  const [future, setFuture] = useState([]);
+  const isUndoingRef = useRef(false);
+
+  useEffect(() => {
+    if (isUndoingRef.current) {
+      isUndoingRef.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      setPast((p) => {
+        const last = p[p.length - 1];
+        if (JSON.stringify(last) !== JSON.stringify(slots)) {
+          return [...p, slots];
+        }
+        return p;
+      });
+      setFuture([]);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [slots]);
+
+  const handleUndo = () => {
+    setPast(p => {
+      if (p.length < 2) return p;
+      const prev = p[p.length - 2];
+      const current = p[p.length - 1];
+      setFuture(f => [current, ...f]);
+      isUndoingRef.current = true;
+      setSlots(prev);
+      return p.slice(0, p.length - 1);
+    });
+  };
+
+  const handleRedo = () => {
+    setFuture(f => {
+      if (f.length === 0) return f;
+      const next = f[0];
+      setPast(p => [...p, next]);
+      isUndoingRef.current = true;
+      setSlots(next);
+      return f.slice(1);
+    });
+  };
+
+  const handleFile = (file) => {
+    if (!file || (!file.type.startsWith('image/') && !file.name.match(/\.(png|webp)$/i))) return;
     const url = URL.createObjectURL(file);
     setSourceFile(file);
     
@@ -40,6 +86,56 @@ export default function UploadBingkaiPage() {
     };
     img.src = url;
   };
+
+  const handleUpload = (e) => {
+    const file = e.target.files?.[0];
+    handleFile(file);
+  };
+
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (e.clipboardData && e.clipboardData.files.length > 0) {
+        e.preventDefault();
+        handleFile(e.clipboardData.files[0]);
+      }
+    };
+    
+    const handleDrop = (e) => {
+      e.preventDefault();
+      if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    };
+
+    const handleDragOver = (e) => e.preventDefault();
+
+    window.addEventListener("paste", handlePaste);
+    window.addEventListener("drop", handleDrop);
+    window.addEventListener("dragover", handleDragOver);
+
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z') {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key === 'y') {
+          e.preventDefault();
+          handleRedo();
+        } else if (e.key === 's') {
+          e.preventDefault();
+          document.getElementById('save-btn')?.click();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+      window.removeEventListener("drop", handleDrop);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleUndo, handleRedo]);
 
   // Helper untuk mendapatkan koordinat pointer yang akurat di atas canvas yang di-scale
   const getCanvasPos = (e) => {
@@ -223,7 +319,14 @@ export default function UploadBingkaiPage() {
     // Don't reset mode, let them keep drawing multiple
   };
 
-  const [isSaving, setIsSaving] = useState(false);
+  const cancelFrame = () => {
+    setImageUrl(null);
+    setSourceFile(null);
+    setImageSize({ w: 0, h: 0 });
+    setSlots([]);
+    setPast([]);
+    setFuture([]);
+  };
 
   const handleSave = async () => {
     if (!sourceFile) return alert("Upload gambar dulu!");
@@ -266,8 +369,8 @@ export default function UploadBingkaiPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-gray-100 flex flex-col">
-      <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between">
+    <div className="h-[100dvh] bg-gray-100 flex flex-col overflow-hidden">
+      <div className="bg-white brutal-border-b px-4 md:px-8 py-4 flex items-center justify-between shrink-0">
         <Link href="/templates" className="inline-flex items-center font-archivo text-xl hover:underline decoration-4">
           <ArrowLeft className="mr-2 w-5 h-5" /> Batal
         </Link>
@@ -277,20 +380,26 @@ export default function UploadBingkaiPage() {
           className="font-archivo text-2xl bg-transparent border-b-4 border-black px-2 py-1 max-w-[260px] text-center focus:outline-none focus:bg-yellow-100"
           placeholder="Nama Bingkai"
         />
-        <Button onClick={handleSave} variant="primary" disabled={!imageUrl || slots.length === 0 || isSaving} className="gap-2">
+        <Button id="save-btn" onClick={handleSave} variant="primary" disabled={!imageUrl || slots.length === 0 || isSaving} className="gap-2">
           <Save className="w-5 h-5" /> {isSaving ? "MENYIMPAN..." : "SIMPAN"}
         </Button>
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row p-4 md:p-8 gap-6">
+      <div className="flex-1 flex flex-col md:flex-row p-4 md:p-8 gap-6 overflow-hidden">
         
-        <div className="w-full md:w-80 flex flex-col gap-4">
+        <div className="w-full md:w-80 flex flex-col gap-4 overflow-y-auto shrink-0 max-h-[40vh] md:max-h-full min-h-0 scrollbar-hide pb-2">
           <div className="bg-white brutal-border brutal-shadow-sm p-5 space-y-4">
             <h2 className="font-archivo text-xl uppercase">1. Upload Frame</h2>
-            <Button onClick={(e) => { e.preventDefault(); fileRef.current?.click(); }} type="button" className="w-full bg-accent text-white hover:bg-black">
-              <Upload className="w-5 h-5 mr-2" /> UPLOAD FILE PNG
+            <p className="text-xs text-gray-500 font-bold mb-2">Bisa drag & drop file atau tekan Ctrl+V di halaman ini.</p>
+            <Button onClick={(e) => { e.preventDefault(); fileRef.current?.click(); }} type="button" className="w-full bg-accent text-white hover:bg-black whitespace-normal h-auto py-3">
+              <Upload className="w-5 h-5 mr-2 shrink-0" /> PILIH FILE (PNG)
             </Button>
             <input type="file" accept="image/png, image/webp" ref={fileRef} onChange={handleUpload} className="hidden" />
+            {imageUrl && (
+              <Button onClick={cancelFrame} variant="outline" className="w-full text-red-500 border-red-200 hover:bg-red-50">
+                BATALKAN FRAME INI
+              </Button>
+            )}
           </div>
 
           <div className={`bg-white brutal-border brutal-shadow-sm p-5 space-y-3 transition-opacity ${!imageUrl ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -328,7 +437,7 @@ export default function UploadBingkaiPage() {
           </div>
         </div>
 
-        <div className="flex-1 bg-[url('/checkers.svg')] bg-repeat brutal-border flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="flex-1 bg-[url('/checkers.svg')] bg-repeat brutal-border flex items-center justify-center p-4 relative overflow-hidden min-h-0">
           {!imageUrl ? (
             <div className="text-gray-400 text-center font-bold uppercase tracking-widest">Belum ada gambar</div>
           ) : (

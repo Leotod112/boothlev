@@ -1,4 +1,5 @@
-const FRAME_API = '/api/frames';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4005';
+const FRAME_API = `${API_BASE}/api/frames`;
 
 async function request(url, options = {}) {
   const response = await fetch(url, {
@@ -22,7 +23,15 @@ async function request(url, options = {}) {
 
 export async function fetchServerFrames() {
   const data = await request(FRAME_API);
-  return Array.isArray(data.frames) ? data.frames : [];
+  let frames = Array.isArray(data.frames) ? data.frames : [];
+  
+  // Convert relative overlay URLs to absolute URLs
+  frames = frames.map(f => ({
+    ...f,
+    overlayUrl: f.overlayUrl ? (f.overlayUrl.startsWith('http') ? f.overlayUrl : `${API_BASE}${f.overlayUrl}`) : null
+  }));
+  
+  return frames;
 }
 
 export async function saveServerFrame(frame, overlayFile = null) {

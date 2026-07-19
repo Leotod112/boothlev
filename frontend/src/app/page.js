@@ -37,6 +37,12 @@ export default function Home() {
           </p>
         </Link>
       </div>
+
+      <div className="mt-12">
+        <Link href="/admin" className="text-sm font-bold text-gray-500 hover:text-black uppercase tracking-widest underline decoration-2 underline-offset-4">
+          Buka Panel Admin
+        </Link>
+      </div>
     </div>
   );
 }

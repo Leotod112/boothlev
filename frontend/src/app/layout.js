@@ -1,6 +1,5 @@
 import { Archivo_Black, Inter, JetBrains_Mono } from "next/font/google";
-import Navbar from "@/components/ui/Navbar";
-import Footer from "@/components/ui/Footer";
+import LayoutWrapper from "@/components/ui/LayoutWrapper";
 import "./globals.css";
 
 const archivoBlack = Archivo_Black({
@@ -32,11 +31,9 @@ export default function RootLayout({ children }) {
       className={`${archivoBlack.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-inter bg-bg-light text-text-dark">
-        <Navbar />
-        <main className="flex-1">
+        <LayoutWrapper>
           {children}
-        </main>
-        <Footer />
+        </LayoutWrapper>
       </body>
     </html>
   );
